@@ -1,0 +1,37 @@
+---
+jellyfin_service_name: jellyfin.service
+jellyfin_service_user: jellyfin
+jellyfin_packages:
+  - jellyfin-server
+  - jellyfin-web
+
+jellyfin_media_group: jellyfin-media
+jellyfin_media_owner: "{{ ansible_facts.user_id }}"
+jellyfin_media_directories:
+  - /srv/media
+  - /srv/media/Films
+  - /srv/media/Séries
+jellyfin_media_directory_mode: '2770'
+
+jellyfin_hardware_acceleration_enabled: true
+jellyfin_hardware_acceleration_packages:
+  - libva-mesa-driver
+jellyfin_hardware_access_groups:
+  - video
+  - render
+
+jellyfin_http_port: '8096'
+jellyfin_discovery_port: '7359'
+# Keep firewall scope explicit. Define it in inventory/group vars rather than
+# deriving it from a possibly transient VPN or default route.
+jellyfin_allowed_networks: []
+# When changing the allowed list, place retired CIDRs here for one run so their
+# existing UFW rules are explicitly deleted.
+jellyfin_ufw_remove_networks: []
+
+# Rules are narrow and managed by default, but activating a host-wide firewall
+# remains an explicit opt-in so this role cannot unexpectedly cut remote access.
+jellyfin_manage_ufw: true
+jellyfin_enable_ufw: false
+jellyfin_ufw_package: ufw
+jellyfin_ufw_default_incoming_policy: deny

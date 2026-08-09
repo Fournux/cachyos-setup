@@ -1,0 +1,84 @@
+---
+- name: Check if user monitors.xml exists
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.config/monitors.xml"
+  register: gnome_monitors_stat
+
+- name: Read user monitors.xml
+  ansible.builtin.slurp:
+    src: "{{ ansible_facts.env.HOME }}/.config/monitors.xml"
+  register: gnome_monitors_raw
+  when: gnome_monitors_stat.stat.exists
+
+- name: Create /etc/xdg directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/xdg
+    state: directory
+    mode: '0755'
+
+- name: Copy processed monitors.xml to GDM
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/xdg/monitors.xml
+    content: "{{ gnome_processed_monitors_xml }}"
+    owner: root
+    group: root
+    mode: '0644'
+  vars:
+    gnome_processed_monitors_xml: >-
+      {{ gnome_monitors_raw.content | b64decode
+         | regex_replace('[ \t]*<ratemode>[^<]*</ratemode>\n?', '')
+         | regex_replace('<layoutmode>physical</layoutmode>', '<layoutmode>logical</layoutmode>') }}
+  when: gnome_monitors_stat.stat.exists
+
+- name: Create dconf profile directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/dconf/profile
+    state: directory
+    mode: '0755'
+
+- name: Create dconf GDM db directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/dconf/db/gdm.d
+    state: directory
+    mode: '0755'
+
+- name: Configure GDM dconf profile
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dconf/profile/gdm
+    content: |
+      user-db:user
+      system-db:gdm
+      file-db:/usr/share/gdm/greeter-dconf-defaults
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Update dconf database
+
+- name: Disable GDM logo
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/gdm.d/02-logo
+    content: |
+      [org/gnome/login-screen]
+      logo=''
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Update dconf database
+
+- name: Enable GDM fractional scaling
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/gdm.d/03-scaling
+    content: |
+      [org/gnome/mutter]
+      experimental-features=['scale-monitor-framebuffer']
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Update dconf database

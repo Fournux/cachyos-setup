@@ -1,0 +1,62 @@
+---
+- name: Install bash-completion
+  become: true
+  community.general.pacman:
+    name: bash-completion
+    state: present
+
+- name: Purge fish packages when explicitly requested
+  become: true
+  community.general.pacman:
+    name: "{{ bash_fish_packages }}"
+    state: absent
+  when: bash_purge_fish_packages | bool
+
+- name: Purge zsh packages when explicitly requested
+  become: true
+  community.general.pacman:
+    name: "{{ bash_zsh_packages }}"
+    state: absent
+  when: bash_purge_zsh_packages | bool
+
+- name: Purge fish configuration when explicitly requested
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ bash_fish_config_paths }}"
+  when: bash_purge_fish_config | bool
+
+- name: Purge zsh configuration when explicitly requested
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ bash_zsh_config_paths }}"
+  when: bash_purge_zsh_config | bool
+
+- name: Purge zsh history when explicitly requested
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop: "{{ bash_zsh_history_paths }}"
+  when: bash_purge_zsh_history | bool
+
+- name: Set bash as default shell
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_facts.user_id }}"
+    shell: /bin/bash
+
+- name: Configure bash aliases and prompt
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts.env.HOME }}/.bashrc"
+    create: true
+    mode: '0644'
+    marker: "# {mark} cachyos-bash-setup"
+    block: |
+      eval "$(dircolors -b)"
+      PS1='\[\e[01;32m\]\u@\h\[\e[00m\]:\[\e[01;34m\]\W\[\e[00m\]\$ '
+      alias ls='ls --color=auto'
+      alias ll='ls -lh --color=auto'
+      alias la='ls -lAh --color=auto'
+      alias grep='grep --color=auto'
+      alias task='go-task'

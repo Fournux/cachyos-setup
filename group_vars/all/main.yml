@@ -1,0 +1,21 @@
+---
+machine_profiles:
+  cachyos-desktop: desktop
+  cachyos-laptop: laptop
+
+nextdns_device_names:
+  desktop: FournuxFixe
+  laptop: FournuxZephyrus
+
+# Explicitly scoped Jellyfin LAN; do not derive firewall access from a VPN or
+# whichever interface happens to own the default route.
+jellyfin_allowed_networks:
+  - 192.168.1.0/24
+
+nextdns_profile_id: !vault |
+  $ANSIBLE_VAULT;1.1;AES256
+  30623437653631613062366330636166366434616166376139356232303537373866373833333531
+  3731376166383035316666633538376461366335616165370a383863393261303833616233386564
+  37613331393464333931343864346339643535396233653439613262646465396238346435656663
+  6334373133636134310a623662353266353433376531376461323061613136646634313461633938
+  6334

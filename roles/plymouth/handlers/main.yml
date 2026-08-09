@@ -1,0 +1,32 @@
+---
+- name: Check the initramfs generator before regeneration
+  become: true
+  ansible.builtin.stat:
+    path: "{{ plymouth_initramfs_command }}"
+    follow: true
+  register: plymouth_initramfs_handler_command
+  when: plymouth_regenerate_initramfs | bool
+  listen: Regenerate initramfs safely
+
+- name: Require a safe initramfs generator
+  ansible.builtin.assert:
+    that:
+      - plymouth_initramfs_handler_command.stat.exists | default(false)
+      - plymouth_initramfs_handler_command.stat.isreg | default(false)
+      - plymouth_initramfs_handler_command.stat.executable | default(false)
+    fail_msg: >-
+      Cannot regenerate initramfs: {{ plymouth_initramfs_command }} is missing
+      or is not an executable regular file.
+  when: plymouth_regenerate_initramfs | bool
+  listen: Regenerate initramfs safely
+
+- name: Regenerate initramfs safely
+  become: true
+  ansible.builtin.command:
+    argv:
+      - "{{ plymouth_initramfs_command }}"
+  changed_when: true
+  when:
+    - plymouth_regenerate_initramfs | bool
+    - not ansible_check_mode
+  listen: Regenerate initramfs safely

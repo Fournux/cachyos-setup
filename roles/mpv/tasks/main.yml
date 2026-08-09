@@ -1,0 +1,60 @@
+---
+- name: Install MPV and MVUtensils with VapourSynth support
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages:
+      - mpv-full
+      - vapoursynth-plugin-mvutensils
+
+- name: Install VapourSynth
+  become: true
+  community.general.pacman:
+    name: vapoursynth
+    state: present
+
+- name: Create mpv config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/mpv"
+    state: directory
+    mode: '0755'
+
+- name: Create VapourSynth config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/vapoursynth"
+    state: directory
+    mode: '0755'
+
+- name: Configure VapourSynth scripting runtime
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/vapoursynth/vapoursynth.toml"
+    content: |
+      "/usr/lib/python{{ mpv_python_version }}/site-packages/vapoursynth/libvsscript.so" = ["/usr/bin/python","/usr/lib/libpython3.so"]
+      "/usr/lib/libvapoursynth-script.so.0" = ["/usr/bin/python","/usr/lib/libpython3.so"]
+    mode: '0644'
+  vars:
+    mpv_python_version: "{{ ansible_facts.python_version.split('.')[:2] | join('.') }}"
+
+- name: Deploy mpv.conf
+  ansible.builtin.copy:
+    src: mpv.conf
+    dest: "{{ ansible_facts.env.HOME }}/.config/mpv/mpv.conf"
+    mode: '0644'
+
+- name: Deploy MVUtensils motion interpolation script
+  ansible.builtin.copy:
+    src: motioninterpolation-mvutensils.vpy
+    dest: >-
+      {{ ansible_facts.env.HOME }}/.config/mpv/motioninterpolation-mvutensils.vpy
+    mode: '0644'
+
+- name: Configure MVUtensils motion interpolation keybinding
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/mpv/input.conf"
+    content: |
+      I vf toggle @motion-mvutensils:vapoursynth={{ mpv_config_dir }}/motioninterpolation-mvutensils.vpy
+    mode: '0644'
+  vars:
+    mpv_config_dir: "{{ ansible_facts.env.HOME }}/.config/mpv"

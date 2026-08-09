@@ -1,0 +1,127 @@
+---
+- name: Install Bun from the Arch repositories
+  become: true
+  community.general.pacman:
+    name: "{{ environment_bun_packages }}"
+    state: present
+  tags: [bun, omp, dotfiles]
+
+- name: Create environment.d directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
+    state: directory
+    mode: '0755'
+  tags: [bun, omp, dotfiles]
+
+- name: Write rbenv environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-rbenv.conf"
+    content: |
+      RBENV_ROOT=$HOME/.rbenv
+    mode: '0644'
+
+- name: Write Bun environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-bun.conf"
+    content: |
+      BUN_INSTALL=$HOME/.bun
+    mode: '0644'
+  tags: [bun, omp, dotfiles]
+
+- name: Check for the system Ruby executable
+  ansible.builtin.stat:
+    path: /usr/bin/ruby
+  register: environment_ruby_binary
+
+- name: Get the Ruby gem user directory
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/ruby
+      - -e
+      - "require 'rubygems'; print Gem.user_dir"
+  register: environment_gem_user_dir
+  changed_when: false
+  check_mode: false
+  when: environment_ruby_binary.stat.exists
+
+- name: Compute the gem binary directory
+  ansible.builtin.set_fact:
+    environment_gem_bin: >-
+      {{
+        environment_gem_user_dir.stdout + '/bin'
+        if environment_ruby_binary.stat.exists
+        else ''
+      }}
+  changed_when: false
+
+- name: Write PATH environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-paths.conf"
+    content: |
+      PATH={{ environment_path_entries | reject('equalto', '') | join(':') }}:$PATH
+    mode: '0644'
+  vars:
+    environment_path_entries:
+      - $HOME/.rbenv/shims
+      - $HOME/.rbenv/bin
+      - $HOME/.bun/bin
+      - $HOME/.local/bin
+      - $HOME/bin
+      - $HOME/.dotnet/tools
+      - "{{ environment_gem_bin }}"
+
+- name: Write Electron Wayland environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-electron.conf"
+    content: |
+      ELECTRON_OZONE_PLATFORM_HINT=wayland
+    mode: '0644'
+
+- name: Check for the dotnet executable
+  ansible.builtin.stat:
+    path: /usr/bin/dotnet
+  register: environment_dotnet_binary
+
+- name: Resolve the dotnet executable
+  ansible.builtin.command:
+    argv:
+      - readlink
+      - -f
+      - /usr/bin/dotnet
+  register: environment_dotnet_executable
+  changed_when: false
+  check_mode: false
+  when: environment_dotnet_binary.stat.exists
+
+- name: Write dotnet root environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
+    content: |
+      DOTNET_ROOT={{ environment_dotnet_executable.stdout | dirname }}
+    mode: '0644'
+  when: environment_dotnet_binary.stat.exists
+
+- name: Remove stale dotnet root environment
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
+    state: absent
+  when: not environment_dotnet_binary.stat.exists
+
+- name: Check for the Godot Mono executable
+  ansible.builtin.stat:
+    path: /usr/bin/godot-mono
+  register: environment_godot_binary
+
+- name: Write Godot environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
+    content: |
+      GODOT=/usr/bin/godot-mono
+    mode: '0644'
+  when: environment_godot_binary.stat.exists
+
+- name: Remove stale Godot environment
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
+    state: absent
+  when: not environment_godot_binary.stat.exists

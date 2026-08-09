@@ -1,0 +1,43 @@
+---
+- name: Install pacman packages
+  become: true
+  community.general.pacman:
+    name: "{{ packages_pacman_packages }}"
+    state: present
+
+- name: Install AUR packages
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages: "{{ packages_aur_packages }}"
+
+- name: Install Flatpak
+  become: true
+  community.general.pacman:
+    name: "{{ packages_flatpak_packages_required }}"
+    state: present
+  tags: [flatpak]
+
+- name: Add Flatpak remotes
+  become: true
+  community.general.flatpak_remote:
+    name: "{{ item.name }}"
+    flatpakrepo_url: "{{ item.flatpakrepo_url }}"
+    method: system
+    state: present
+  loop: "{{ packages_flatpak_remotes }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [flatpak]
+
+- name: Install Flatpak packages
+  become: true
+  community.general.flatpak:
+    name: "{{ packages_flatpak_packages }}"
+    method: system
+    remote: "{{ packages_flatpak_default_remote }}"
+    state: present
+  when: packages_flatpak_packages | length > 0
+  tags: [flatpak]

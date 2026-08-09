@@ -1,0 +1,24 @@
+---
+# This role intentionally disables Plymouth on CachyOS. Set this to false to
+# leave packages and boot configuration untouched.
+plymouth_disable: true
+plymouth_manage_mkinitcpio: true
+plymouth_hook_cleanup_passes: 4
+plymouth_manage_limine_cmdline: true
+plymouth_regenerate_initramfs: true
+plymouth_backup_configs: true
+
+plymouth_mkinitcpio_config_path: /etc/mkinitcpio.conf
+plymouth_limine_config_path: /boot/limine.conf
+plymouth_limine_defaults_path: /etc/default/limine
+plymouth_initramfs_command: /usr/bin/limine-mkinitcpio
+plymouth_limine_cmdline_options:
+  - quiet
+  - splash
+
+plymouth_packages:
+  - plymouth
+  - plymouth-git
+  - plymouth-kcm
+  - cachyos-plymouth-theme
+  - cachyos-plymouth-bootanimation

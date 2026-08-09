@@ -1,0 +1,11 @@
+---
+podman_packages:
+  - podman
+  - podman-compose
+  - podman-desktop
+
+# Testcontainers still uses some short image names. Keep this explicit and
+# prefer fully qualified image references in project code.
+podman_unqualified_search_registries:
+  - docker.io
+podman_testcontainers_ryuk_disabled: true

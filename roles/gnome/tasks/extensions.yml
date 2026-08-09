@@ -1,0 +1,316 @@
+---
+- name: Validate the managed GNOME extension list
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - gnome_extensions is sequence
+      - gnome_extensions is not string
+      - gnome_extensions | length > 0
+    fail_msg: >-
+      gnome_extensions must be a non-empty list of mappings containing uuid
+      and enabled keys.
+
+- name: Validate each managed GNOME extension
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - item is mapping
+      - (item.uuid | default('')) is match('^[A-Za-z0-9_.+@-]+$')
+      - (item.enabled | default(none)) is boolean
+    fail_msg: >-
+      Invalid gnome_extensions entry. Each extension needs a safe UUID and a
+      boolean enabled value.
+  loop: "{{ gnome_extensions }}"
+  loop_control:
+    label: "{{ item.uuid | default('invalid entry') }}"
+
+- name: Read the installed GNOME Shell version
+  ansible.builtin.command:
+    argv:
+      - gnome-shell
+      - --version
+  environment:
+    LC_ALL: C
+  register: gnome_shell_version_command
+  changed_when: false
+  check_mode: false
+
+- name: Validate the GNOME Shell version output
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - gnome_shell_version_command.rc == 0
+      - (gnome_shell_version_command.stdout | regex_search('[0-9]+')) is not none
+    fail_msg: >-
+      Unable to determine the GNOME Shell major version from
+      'gnome-shell --version'.
+
+- name: Select the installed GNOME Shell major version
+  ansible.builtin.set_fact:
+    gnome_shell_major_version: >-
+      {{ gnome_shell_version_command.stdout | regex_findall('[0-9]+') | first }}
+  changed_when: false
+
+- name: Fetch compatible GNOME extension metadata
+  ansible.builtin.uri:
+    url: >-
+      https://extensions.gnome.org/extension-info/?uuid={{ item.uuid | urlencode
+      }}&shell_version={{ gnome_shell_major_version | urlencode }}
+    headers:
+      Accept: application/json
+    return_content: true
+    status_code: 200
+    timeout: "{{ gnome_extension_api_timeout }}"
+    validate_certs: true
+  register: gnome_extension_info
+  loop: "{{ gnome_extensions }}"
+  loop_control:
+    label: "{{ item.uuid }} (GNOME {{ gnome_shell_major_version }})"
+  retries: "{{ gnome_extension_api_retries }}"
+  delay: "{{ gnome_extension_api_retry_delay }}"
+  until:
+    - gnome_extension_info.status | default(0) == 200
+    - gnome_extension_info.json is defined
+  changed_when: false
+  check_mode: false
+
+- name: Validate compatible GNOME extension metadata
+  ansible.builtin.assert:
+    quiet: true
+    that:
+      - (item.json | default({})) is mapping
+      - (item.json.uuid | default('')) == item.item.uuid
+      - (item.json.shell_version_map | default({})) is mapping
+      - >-
+        (item.json.shell_version_map | default({})).get(
+          gnome_shell_major_version, {}
+        ).get('version', 0) | int > 0
+      - >-
+        item.json.version | default(0) | int ==
+        (item.json.shell_version_map | default({})).get(
+          gnome_shell_major_version, {}
+        ).get('version', 0) | int
+      - item.json.version_tag | default(0) | int > 0
+      - >-
+        (item.json.download_url | default('')) is match(
+          '^/download-extension/[A-Za-z0-9_.+@-]+[.]shell-extension[.]zip[?]version_tag=[0-9]+$'
+        )
+    fail_msg: >-
+      extensions.gnome.org returned no valid release of {{ item.item.uuid }}
+      compatible with GNOME {{ gnome_shell_major_version }}.
+  loop: "{{ gnome_extension_info.results }}"
+  loop_control:
+    label: "{{ item.item.uuid }}"
+
+- name: Read installed GNOME extension versions
+  ansible.builtin.command:
+    argv:
+      - gnome-extensions
+      - info
+      - --quiet
+      - "{{ item.uuid }}"
+  environment:
+    LC_ALL: C
+  register: gnome_installed_extension_info
+  loop: "{{ gnome_extensions }}"
+  loop_control:
+    label: "{{ item.uuid }}"
+  changed_when: false
+  failed_when: gnome_installed_extension_info.rc not in [0, 2]
+  check_mode: false
+
+- name: Select the user GNOME extension directory
+  ansible.builtin.set_fact:
+    gnome_extension_user_root: >-
+      {{
+        (
+          ansible_facts.env.XDG_DATA_HOME
+          | default(ansible_facts.env.HOME + '/.local/share', true)
+        ) + '/gnome-shell/extensions'
+      }}
+  changed_when: false
+
+- name: Check installed GNOME extension metadata files
+  ansible.builtin.stat:
+    path: "{{ gnome_extension_user_root }}/{{ item.uuid }}/metadata.json"
+  register: gnome_installed_extension_metadata_stats
+  loop: "{{ gnome_extensions }}"
+  loop_control:
+    label: "{{ item.uuid }}"
+  changed_when: false
+  check_mode: false
+
+- name: Read installed GNOME extension metadata files
+  ansible.builtin.slurp:
+    src: "{{ item.stat.path }}"
+  register: gnome_installed_extension_metadata
+  loop: "{{ gnome_installed_extension_metadata_stats.results }}"
+  loop_control:
+    label: "{{ item.item.uuid }}"
+  when:
+    - item.stat.exists
+    - item.stat.isreg
+  changed_when: false
+  check_mode: false
+
+- name: Initialize the GNOME extension installation plan
+  ansible.builtin.set_fact:
+    gnome_extensions_to_install: []
+  changed_when: false
+
+- name: Select missing or incompatible GNOME extensions
+  ansible.builtin.set_fact:
+    gnome_extensions_to_install: >-
+      {{
+        gnome_extensions_to_install
+        + [{
+          'uuid': item.item.uuid,
+          'version': gnome_extension_target_version | int,
+          'version_tag': item.json.version_tag | int,
+          'download_url': 'https://extensions.gnome.org' + item.json.download_url
+        }]
+      }}
+  vars:
+    gnome_extension_installed_result: >-
+      {{
+        gnome_installed_extension_info.results
+        | selectattr('item.uuid', 'equalto', item.item.uuid)
+        | first
+      }}
+    gnome_extension_metadata_result: >-
+      {{
+        gnome_installed_extension_metadata.results
+        | selectattr('content', 'defined')
+        | selectattr('item.item.uuid', 'equalto', item.item.uuid)
+        | first
+        | default({})
+      }}
+    gnome_extension_installed_metadata: >-
+      {{
+        (
+          gnome_extension_metadata_result.content
+          | b64decode
+          | from_json
+        )
+        if gnome_extension_metadata_result.content is defined
+        else {}
+      }}
+    gnome_extension_cli_version: >-
+      {{
+        (
+          gnome_extension_installed_result.stdout | default('')
+          | regex_findall('(?m)^\s*Version:.*\(([0-9]+)\)\s*$')
+          | first
+          | default(
+              gnome_extension_installed_result.stdout | default('')
+              | regex_findall('(?m)^\s*Version:\s*([0-9]+)\s*$')
+              | first
+              | default('0', true),
+              true
+            )
+        )
+        if gnome_extension_installed_result.rc | default(1) == 0
+        else 0
+      }}
+    gnome_extension_installed_version: >-
+      {{
+        gnome_extension_installed_metadata.get(
+          'version',
+          gnome_extension_cli_version
+        )
+      }}
+    gnome_extension_target_version: >-
+      {{ item.json.shell_version_map[gnome_shell_major_version].version }}
+  loop: "{{ gnome_extension_info.results }}"
+  loop_control:
+    label: "{{ item.item.uuid }}"
+  when: >-
+    gnome_extension_installed_version | int !=
+    gnome_extension_target_version | int
+  changed_when: false
+
+- name: Report the GNOME extension installation plan in check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would install GNOME extensions for GNOME
+      {{ gnome_shell_major_version }}:
+      {{ gnome_extensions_to_install | map(attribute='uuid') | join(', ') }}
+  when:
+    - ansible_check_mode
+    - gnome_extensions_to_install | length > 0
+  changed_when: true
+
+- name: Install planned GNOME extensions
+  when:
+    - not ansible_check_mode
+    - gnome_extensions_to_install | length > 0
+  block:
+    - name: Create a temporary GNOME extension download directory
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: ansible-gnome-extensions-
+      register: gnome_extension_tempdir
+
+    - name: Download compatible GNOME extension archives
+      ansible.builtin.get_url:
+        url: "{{ item.download_url }}"
+        dest: "{{ gnome_extension_tempdir.path }}/{{ item.uuid }}.zip"
+        mode: '0600'
+        timeout: "{{ gnome_extension_download_timeout }}"
+        validate_certs: true
+      register: gnome_extension_downloads
+      loop: "{{ gnome_extensions_to_install }}"
+      loop_control:
+        label: "{{ item.uuid }} v{{ item.version }}"
+      retries: "{{ gnome_extension_api_retries }}"
+      delay: "{{ gnome_extension_api_retry_delay }}"
+      until: gnome_extension_downloads is succeeded
+
+    - name: Install compatible GNOME extension archives
+      ansible.builtin.command:
+        argv:
+          - gnome-extensions
+          - install
+          - --force
+          - "{{ item.dest }}"
+      loop: "{{ gnome_extension_downloads.results }}"
+      loop_control:
+        label: "{{ item.item.uuid }} v{{ item.item.version }}"
+      changed_when: true
+
+    - name: Read installed GNOME extension metadata after installation
+      ansible.builtin.slurp:
+        src: >-
+          {{ gnome_extension_user_root }}/{{ item.uuid }}/metadata.json
+      register: gnome_installed_extension_validation
+      loop: "{{ gnome_extensions_to_install }}"
+      loop_control:
+        label: "{{ item.uuid }}"
+      changed_when: false
+
+    - name: Validate installed GNOME extension metadata
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - gnome_extension_validation_metadata is mapping
+          - >-
+            gnome_extension_validation_metadata.uuid | default('') ==
+            item.item.uuid
+          - >-
+            gnome_extension_validation_metadata.version | default(0) | int ==
+            item.item.version | int
+        fail_msg: >-
+          {{ item.item.uuid }} was not installed at the expected compatible
+          version {{ item.item.version }}.
+      vars:
+        gnome_extension_validation_metadata: >-
+          {{ item.content | b64decode | from_json }}
+      loop: "{{ gnome_installed_extension_validation.results }}"
+      loop_control:
+        label: "{{ item.item.uuid }}"
+  always:
+    - name: Remove the temporary GNOME extension download directory
+      ansible.builtin.file:
+        path: "{{ gnome_extension_tempdir.path | default('') }}"
+        state: absent
+      when: gnome_extension_tempdir.path | default('') | length > 0

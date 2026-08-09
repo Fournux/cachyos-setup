@@ -1,0 +1,56 @@
+---
+- name: Install GIMP
+  become: true
+  community.general.pacman:
+    name: "{{ gimp_packages }}"
+    state: present
+
+- name: Check for the GIMP console executable
+  ansible.builtin.stat:
+    path: /usr/bin/gimp-console
+  register: gimp_console_binary
+
+- name: Read the installed GIMP version
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/gimp-console
+      - --version
+  environment:
+    LC_ALL: C
+  register: gimp_version_command
+  changed_when: false
+  check_mode: false
+  when: gimp_console_binary.stat.exists
+
+- name: Select the GIMP user configuration version
+  ansible.builtin.set_fact:
+    gimp_config_version: >-
+      {{
+        (
+          gimp_version_command.stdout
+          | regex_findall('[0-9]+[.][0-9]+')
+          | first
+        )
+        if gimp_console_binary.stat.exists
+        else gimp_config_version_fallback
+      }}
+  changed_when: false
+
+- name: Create the user Script-Fu directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/GIMP/{{ gimp_config_version }}/scripts"
+    state: directory
+    mode: '0755'
+
+- name: Install the arrow Script-Fu plugin for the user
+  ansible.builtin.copy:
+    src: arrow_V3.scm
+    dest: "{{ ansible_facts.env.HOME }}/.config/GIMP/{{ gimp_config_version }}/scripts/arrow_V3.scm"
+    mode: '0644'
+
+- name: Remove the legacy system-wide Script-Fu plugin
+  become: true
+  ansible.builtin.file:
+    path: /usr/share/gimp/3.0/scripts/arrow_V3.scm
+    state: absent
+  when: gimp_remove_legacy_system_plugin

@@ -1,0 +1,35 @@
+---
+# Removing another shell or its user data is always opt-in.
+bash_purge_fish_packages: false
+bash_purge_zsh_packages: false
+bash_purge_fish_config: false
+bash_purge_zsh_config: false
+bash_purge_zsh_history: false
+
+bash_fish_packages:
+  - cachyos-fish-config
+  - fish
+  - fish-autopair
+  - fish-pure-prompt
+  - fisher
+
+bash_zsh_packages:
+  - cachyos-zsh-config
+  - oh-my-zsh-git
+  - zsh-autosuggestions
+  - zsh-history-substring-search
+  - zsh-syntax-highlighting
+  - zsh-theme-powerlevel10k
+  - zsh-completions
+  - zsh
+
+bash_fish_config_paths:
+  - "{{ ansible_facts.env.HOME }}/.config/fish"
+
+bash_zsh_config_paths:
+  - "{{ ansible_facts.env.HOME }}/.zshrc"
+  - "{{ ansible_facts.env.HOME }}/.zshenv"
+  - "{{ ansible_facts.env.HOME }}/.zprofile"
+
+bash_zsh_history_paths:
+  - "{{ ansible_facts.env.HOME }}/.zsh_history"

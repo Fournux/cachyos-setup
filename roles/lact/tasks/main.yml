@@ -1,0 +1,13 @@
+---
+- name: Install LACT
+  become: true
+  community.general.pacman:
+    name: lact
+    state: present
+
+- name: Enable and start lactd service
+  become: true
+  ansible.builtin.systemd_service:
+    name: lactd
+    state: started
+    enabled: true

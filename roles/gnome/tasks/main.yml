@@ -1,0 +1,43 @@
+---
+- name: Install GNOME extension runtime dependencies
+  become: true
+  community.general.pacman:
+    name: "{{ gnome_required_packages }}"
+    state: present
+  when: gnome_required_packages | length > 0
+  tags: [gnome, gnome_extensions]
+
+- name: Detect an active GNOME user session
+  ansible.builtin.set_fact:
+    gnome_session_available: >-
+      {{
+        'GNOME' in
+        (ansible_facts.env.XDG_CURRENT_DESKTOP | default('') | upper)
+        and
+        (ansible_facts.env.DBUS_SESSION_BUS_ADDRESS | default('') | length > 0)
+      }}
+  changed_when: false
+  tags: [gnome, gnome_extensions, dconf]
+
+- name: Warn if a GNOME user session is unavailable
+  ansible.builtin.debug:
+    msg: >-
+      An active GNOME session with a user D-Bus was not detected. Extension
+      and dconf tasks will be skipped. Run the playbook again from a terminal
+      inside GNOME after the first login.
+  when: not gnome_session_available
+  tags: [gnome, gnome_extensions, dconf]
+
+- name: Install and configure GNOME extensions
+  ansible.builtin.import_tasks: extensions.yml
+  when: gnome_session_available
+  tags: [gnome, gnome_extensions]
+
+- name: Apply dconf preferences
+  ansible.builtin.import_tasks: dconf.yml
+  when: gnome_session_available
+  tags: [gnome, dconf]
+
+- name: Configure GDM
+  ansible.builtin.import_tasks: gdm.yml
+  tags: [gnome, gdm]

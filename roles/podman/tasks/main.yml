@@ -1,0 +1,80 @@
+---
+- name: Install Podman packages
+  become: true
+  community.general.pacman:
+    name: "{{ podman_packages }}"
+    state: present
+
+- name: Enable Podman socket
+  ansible.builtin.systemd_service:
+    name: podman.socket
+    state: started
+    enabled: true
+    scope: user
+
+- name: Create containers registries config directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/containers/registries.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure explicit unqualified-search registries
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/containers/registries.conf.d/10-unqualified-search.conf
+    content: |
+      unqualified-search-registries = {{ podman_unqualified_search_registries | to_json }}
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Create environment.d directory for Podman
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
+    state: directory
+    mode: '0755'
+
+- name: Write Podman socket environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-podman.conf"
+    content: |
+      DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
+    mode: '0644'
+
+- name: Check for an existing Testcontainers configuration
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
+  register: podman_testcontainers_config_file
+
+- name: Read the existing Testcontainers configuration
+  ansible.builtin.slurp:
+    src: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
+  register: podman_testcontainers_config_raw
+  when: podman_testcontainers_config_file.stat.exists
+
+- name: Remove legacy unmarked Testcontainers settings
+  ansible.builtin.lineinfile:
+    path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
+    regexp: "{{ item }}"
+    state: absent
+  loop:
+    - '^docker[.]host=unix:///run/user/[0-9]+/podman/podman[.]sock$'
+    - '^ryuk[.]disabled=true$'
+  when:
+    - podman_testcontainers_config_file.stat.exists
+    - >-
+      'ANSIBLE MANAGED PODMAN SETTINGS'
+      not in (podman_testcontainers_config_raw.content | b64decode)
+
+- name: Manage Testcontainers Podman settings
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
+    create: true
+    mode: '0644'
+    marker: "# {mark} ANSIBLE MANAGED PODMAN SETTINGS"
+    block: |
+      docker.host=unix:///run/user/{{ ansible_facts.user_uid }}/podman/podman.sock
+      ryuk.disabled={{ podman_testcontainers_ryuk_disabled | string | lower }}

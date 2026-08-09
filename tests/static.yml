@@ -1,0 +1,108 @@
+---
+- name: Validate repository invariants without changing the workstation
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+    - ../roles/gnome/defaults/main.yml
+  vars:
+    dns_nextdns_hostname: test-device-abcdef
+    gnome_version_fixtures:
+      - output: '  Version: 73'
+        expected: 73
+      - output: '  Version: 50.6 (95)'
+        expected: 95
+      - output: '  Version: 69.2 (73)'
+        expected: 73
+    valid_aur_package_names:
+      - gapless
+      - visual-studio-code-bin
+      - proton-ge_custom
+    invalid_aur_package_names:
+      - --help
+      - -root
+      - UppercasePackage
+
+  tasks:
+    - name: Parse GNOME numeric extension versions
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - gnome_fixture_version | int == item.expected | int
+        fail_msg: >-
+          Failed to parse the GNOME extension version from '{{ item.output }}'.
+      vars:
+        gnome_fixture_version: >-
+          {{
+            item.output
+            | regex_findall('(?m)^\s*Version:.*\(([0-9]+)\)\s*$')
+            | first
+            | default(
+                item.output
+                | regex_findall('(?m)^\s*Version:\s*([0-9]+)\s*$')
+                | first
+                | default('0', true),
+                true
+              )
+          }}
+      loop: "{{ gnome_version_fixtures }}"
+      loop_control:
+        label: "{{ item.output | trim }}"
+
+    - name: Accept valid AUR package names
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - item is match('^[a-z0-9][a-z0-9@._+-]*$')
+      loop: "{{ valid_aur_package_names }}"
+
+    - name: Reject option-like or invalid AUR package names
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - item is not match('^[a-z0-9][a-z0-9@._+-]*$')
+      loop: "{{ invalid_aur_package_names }}"
+
+    - name: Render the managed GNOME dconf keyfile
+      ansible.builtin.set_fact:
+        static_gnome_dconf: >-
+          {{
+            lookup(
+              'ansible.builtin.template',
+              playbook_dir + '/../roles/gnome/templates/dconf-settings.ini.j2'
+            )
+          }}
+      changed_when: false
+
+    - name: Validate the GNOME extension source of truth
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - "'smart-home@chlumskyvaclav.gmail.com' in static_gnome_dconf"
+          - "'weatherpanel@attentivecoder' in static_gnome_dconf"
+          - >-
+            gnome_extensions
+            | selectattr('enabled', 'equalto', true)
+            | map(attribute='uuid')
+            | difference(static_gnome_dconf | regex_findall("'([^']+@[^']+)'"))
+            | length == 0
+
+    - name: Render the systemd-resolved configuration fixture
+      ansible.builtin.set_fact:
+        static_resolved_config: >-
+          {{
+            lookup(
+              'ansible.builtin.template',
+              playbook_dir + '/../roles/dns/templates/resolved.conf.j2'
+            )
+          }}
+      changed_when: false
+      no_log: true
+
+    - name: Validate IPv4 and IPv6 DNS-over-TLS SNI syntax
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - "'DNS=2a07:a8c0::#test-device-abcdef.dns.nextdns.io' in static_resolved_config"
+          - "'DNS=2a07:a8c1::#test-device-abcdef.dns.nextdns.io' in static_resolved_config"
+          - "'DNS=45.90.28.0#test-device-abcdef.dns.nextdns.io' in static_resolved_config"

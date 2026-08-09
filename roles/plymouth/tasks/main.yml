@@ -1,0 +1,119 @@
+---
+- name: Disable Plymouth when explicitly configured
+  when: plymouth_disable | bool
+  block:
+    - name: Check mkinitcpio configuration before editing it
+      become: true
+      ansible.builtin.stat:
+        path: "{{ plymouth_mkinitcpio_config_path }}"
+        follow: true
+      register: plymouth_mkinitcpio_config
+      when: plymouth_manage_mkinitcpio | bool
+
+    - name: Require a regular mkinitcpio configuration
+      ansible.builtin.assert:
+        that:
+          - plymouth_mkinitcpio_config.stat.exists | default(false)
+          - plymouth_mkinitcpio_config.stat.isreg | default(false)
+        fail_msg: >-
+          {{ plymouth_mkinitcpio_config_path }} is missing or is not a regular
+          file; Plymouth was not removed.
+      when: plymouth_manage_mkinitcpio | bool
+
+    - name: Check Limine configuration before editing it
+      become: true
+      ansible.builtin.stat:
+        path: "{{ plymouth_limine_config_path }}"
+        follow: true
+      register: plymouth_limine_config
+      when: plymouth_manage_limine_cmdline | bool
+
+    - name: Require a regular Limine configuration
+      ansible.builtin.assert:
+        that:
+          - plymouth_limine_config.stat.exists | default(false)
+          - plymouth_limine_config.stat.isreg | default(false)
+        fail_msg: >-
+          {{ plymouth_limine_config_path }} is missing or is not a regular
+          file; Plymouth was not removed.
+      when: plymouth_manage_limine_cmdline | bool
+
+    - name: Check the Limine defaults before editing kernel options
+      become: true
+      ansible.builtin.stat:
+        path: "{{ plymouth_limine_defaults_path }}"
+        follow: true
+      register: plymouth_limine_defaults
+      when: plymouth_manage_limine_cmdline | bool
+
+    - name: Require regular Limine defaults
+      ansible.builtin.assert:
+        that:
+          - plymouth_limine_defaults.stat.exists | default(false)
+          - plymouth_limine_defaults.stat.isreg | default(false)
+        fail_msg: >-
+          {{ plymouth_limine_defaults_path }} is missing or is not a regular
+          file; Plymouth was not removed.
+      when: plymouth_manage_limine_cmdline | bool
+
+    - name: Check the configured initramfs generator
+      become: true
+      ansible.builtin.stat:
+        path: "{{ plymouth_initramfs_command }}"
+        follow: true
+      register: plymouth_initramfs_preflight_command
+      when: plymouth_regenerate_initramfs | bool
+
+    - name: Require an executable initramfs generator
+      ansible.builtin.assert:
+        that:
+          - plymouth_initramfs_preflight_command.stat.exists | default(false)
+          - plymouth_initramfs_preflight_command.stat.isreg | default(false)
+          - plymouth_initramfs_preflight_command.stat.executable | default(false)
+        fail_msg: >-
+          {{ plymouth_initramfs_command }} is missing or is not executable;
+          Plymouth was not removed.
+      when: plymouth_regenerate_initramfs | bool
+
+    - name: Remove Plymouth packages
+      become: true
+      community.general.pacman:
+        name: "{{ plymouth_packages }}"
+        state: absent
+      notify: Regenerate initramfs safely
+
+    - name: Remove only the Plymouth hook from mkinitcpio HOOKS
+      become: true
+      ansible.builtin.replace:
+        path: "{{ plymouth_mkinitcpio_config_path }}"
+        regexp: '^([ \t]*HOOKS[ \t]*=[ \t]*\((?:(?!\))[\s\S])*?)(?:(?<=\()|(?<=[ \t\n]))plymouth(?=[ \t\n\)]|$)[ \t\n]*'
+        replace: '\1'
+        backup: "{{ plymouth_backup_configs | bool }}"
+      loop: "{{ range(plymouth_hook_cleanup_passes | int) | list }}"
+      loop_control:
+        label: "pass {{ item + 1 }}"
+      when: plymouth_manage_mkinitcpio | bool
+      notify: Regenerate initramfs safely
+
+    - name: Remove Plymouth options from the Limine kernel command source
+      become: true
+      ansible.builtin.replace:
+        path: "{{ plymouth_limine_defaults_path }}"
+        regexp: '^([ \t]*KERNEL_CMDLINE(?:\[[^]\n]+\])?[ \t]*\+?=[ \t]*"[^"\n]*?)(?:(?<=")|(?<=[ \t])){{ item | regex_escape }}(?=[ \t"]|$)[ \t]*'
+        replace: '\1'
+        backup: "{{ plymouth_backup_configs | bool }}"
+      loop: "{{ plymouth_limine_cmdline_options }}"
+      when: plymouth_manage_limine_cmdline | bool
+      notify: Regenerate initramfs safely
+
+    - name: Remove Plymouth options from generated Limine cmdlines
+      become: true
+      ansible.builtin.replace:
+        path: "{{ plymouth_limine_config_path }}"
+        regexp: '^([ \t]*cmdline[ \t]*:[^\n]*?)(?:(?<=:)|(?<=[ \t])){{ item | regex_escape }}(?=[ \t]|$)[ \t]*'
+        replace: '\1'
+        # Ansible backup names contain colons, which FAT filesystems reject.
+        backup: false
+      loop: "{{ plymouth_limine_cmdline_options }}"
+      when: plymouth_manage_limine_cmdline | bool
+      notify: Regenerate initramfs safely

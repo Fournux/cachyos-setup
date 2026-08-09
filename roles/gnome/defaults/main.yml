@@ -1,0 +1,31 @@
+---
+# Every entry in this list is installed by the role. The enabled flag is also
+# used to render org.gnome.shell enabled-extensions; do not maintain a second
+# UUID list in the dconf template.
+gnome_extensions:
+  - uuid: dash-to-panel@jderose9.github.com
+    enabled: true
+  - uuid: HeadsetControl@lauinger-clan.de
+    enabled: true
+  - uuid: Vitals@CoreCoding.com
+    enabled: true
+  - uuid: appindicatorsupport@rgcjonas.gmail.com
+    enabled: true
+  - uuid: user-theme@gnome-shell-extensions.gcampax.github.com
+    enabled: true
+  - uuid: arcmenu@arcmenu.com
+    enabled: true
+  - uuid: weatherpanel@attentivecoder
+    enabled: true
+  - uuid: just-perfection-desktop@just-perfection
+    enabled: true
+  - uuid: smart-home@chlumskyvaclav.gmail.com
+    enabled: true
+
+gnome_required_packages:
+  - headsetcontrol
+
+gnome_extension_api_timeout: 15
+gnome_extension_api_retries: 3
+gnome_extension_api_retry_delay: 2
+gnome_extension_download_timeout: 30

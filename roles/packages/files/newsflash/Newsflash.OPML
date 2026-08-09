@@ -1,0 +1,29 @@
+<opml version="2.0">
+  <head>
+    <title>
+      NewsFlash OPML export
+    </title>
+  </head>
+  <body>
+    <outline text="IGN France"
+      type="rss"
+      xmlUrl="https://fr.ign.com/feed.xml"
+      htmlUrl="https://fr.ign.com/"
+      title="IGN France" />
+    <outline text="Guild Wars"
+      type="rss"
+      xmlUrl="https://www.guildwars2.com/fr/feed/"
+      htmlUrl="https://www.guildwars2.com/fr"
+      title="Guild Wars" />
+    <outline text="JeuxOnLine - Actualités"
+      type="rss"
+      xmlUrl="https://www.jeuxonline.info/rss/actualites/rss.xml"
+      htmlUrl="https://www.jeuxonline.info/"
+      title="JeuxOnLine - Actualités" />
+    <outline text="GamingOnLinux Latest Articles"
+      type="rss"
+      xmlUrl="https://www.gamingonlinux.com/article_rss.php"
+      htmlUrl="https://www.gamingonlinux.com/"
+      title="GamingOnLinux Latest Articles" />
+  </body>
+</opml>

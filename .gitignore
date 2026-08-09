@@ -1,0 +1,5 @@
+.ansible/
+.cache/
+.claude/
+.vault-password
+*.retry

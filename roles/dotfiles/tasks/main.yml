@@ -1,0 +1,102 @@
+---
+- name: Install Ghostty
+  become: true
+  community.general.pacman:
+    name: "{{ dotfiles_ghostty_packages }}"
+    state: present
+  tags: [ghostty]
+
+- name: Create Ghostty config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/ghostty"
+    state: directory
+    mode: '0755'
+  tags: [ghostty]
+
+- name: Deploy Ghostty config
+  ansible.builtin.copy:
+    src: ghostty/config.ghostty
+    dest: "{{ ansible_facts.env.HOME }}/.config/ghostty/config.ghostty"
+    mode: '0644'
+  tags: [ghostty]
+
+- name: Check for the OMP executable
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
+  register: dotfiles_omp_binary
+  tags: [omp]
+
+- name: Read the installed OMP version
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
+      - --version
+  environment:
+    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
+  register: dotfiles_omp_version_result
+  changed_when: false
+  failed_when: false
+  check_mode: false
+  when: dotfiles_omp_binary.stat.exists
+  tags: [omp]
+
+- name: Determine whether OMP must be installed
+  ansible.builtin.set_fact:
+    dotfiles_omp_needs_install: >-
+      {{
+        not dotfiles_omp_binary.stat.exists
+        or
+        (dotfiles_omp_version_result.rc | default(1) != 0)
+        or
+        (dotfiles_omp_version_result.stdout | default(''))
+        != 'omp/' + dotfiles_omp_version
+      }}
+  changed_when: false
+  tags: [omp]
+
+- name: Report the required OMP installation in check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would install {{ dotfiles_omp_package }}@{{ dotfiles_omp_version }}.
+  when:
+    - ansible_check_mode
+    - dotfiles_omp_needs_install
+  changed_when: true
+  tags: [omp]
+
+- name: Install the pinned OMP version with Bun
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_bun_executable }}"
+      - install
+      - --global
+      - "{{ dotfiles_omp_package }}@{{ dotfiles_omp_version }}"
+  environment:
+    BUN_INSTALL: "{{ ansible_facts.env.HOME }}/.bun"
+    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
+  when:
+    - not ansible_check_mode
+    - dotfiles_omp_needs_install
+  changed_when: true
+  tags: [omp]
+
+- name: Create OMP agent config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.omp/agent"
+    state: directory
+    mode: '0700'
+  tags: [omp]
+
+- name: Deploy OMP agent config
+  ansible.builtin.copy:
+    src: omp/agent/config.yml
+    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/config.yml"
+    mode: '0600'
+  tags: [omp]
+
+- name: Deploy OMP append system
+  ansible.builtin.copy:
+    src: omp/agent/APPEND_SYSTEM.md
+    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/APPEND_SYSTEM.md"
+    mode: '0644'
+  tags: [omp]

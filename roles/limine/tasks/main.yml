@@ -1,0 +1,37 @@
+---
+- name: Configure the Limine theme when requested
+  when: limine_manage_theme | bool
+  block:
+    - name: Check Limine configuration before editing it
+      become: true
+      ansible.builtin.stat:
+        path: "{{ limine_config_path }}"
+        follow: true
+      register: limine_config
+
+    - name: Require a regular Limine configuration
+      ansible.builtin.assert:
+        that:
+          - limine_config.stat.exists | default(false)
+          - limine_config.stat.isreg | default(false)
+        fail_msg: "{{ limine_config_path }} is missing or is not a regular file."
+
+    - name: Remove only legacy Ansible Limine theme markers
+      become: true
+      ansible.builtin.lineinfile:
+        path: "{{ limine_config_path }}"
+        regexp: '^# (?:BEGIN|END) ANSIBLE MANAGED - limine theme$'
+        state: absent
+        # Ansible backup names contain colons, which FAT filesystems reject.
+        backup: false
+
+    - name: Apply Limine Adwaita Dark global theme keys
+      become: true
+      ansible.builtin.lineinfile:
+        path: "{{ limine_config_path }}"
+        regexp: '^{{ item.key | regex_escape }}[ \t]*:'
+        line: "{{ item.key }}: {{ item.value }}"
+        insertbefore: BOF
+        # Ansible backup names contain colons, which FAT filesystems reject.
+        backup: false
+      loop: "{{ limine_theme | dict2items }}"

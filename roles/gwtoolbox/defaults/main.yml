@@ -1,0 +1,15 @@
+---
+gwtoolbox_steam_appid: "29720"
+gwtoolbox_profile_name: "{{ ansible_facts.hostname | upper }}"
+
+gwtoolbox_prefix_candidates:
+  - "{{ ansible_facts.env.HOME }}/.local/share/Steam/steamapps/compatdata/{{ gwtoolbox_steam_appid }}/pfx"
+  - "{{ ansible_facts.env.HOME }}/.steam/steam/steamapps/compatdata/{{ gwtoolbox_steam_appid }}/pfx"
+  - "{{ ansible_facts.env.HOME }}/.var/app/com.valvesoftware.Steam/.local/share/Steam/steamapps/compatdata/{{ gwtoolbox_steam_appid }}/pfx"
+
+gwtoolbox_game_exe_relative_path: "drive_c/Program Files (x86)/Guild Wars/Gw.exe"
+gwtoolbox_config_relative_path: "drive_c/users/steamuser/Documents/GWToolboxpp/{{ gwtoolbox_profile_name }}/configs/default"
+
+gwtoolbox_config_files:
+  - interface.ini
+  - Layout.json

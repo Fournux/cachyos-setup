@@ -1,0 +1,49 @@
+---
+- name: Install Discord and tray support
+  become: true
+  community.general.pacman:
+    name:
+      - discord
+      - libappindicator-gtk3
+    state: present
+
+- name: Create Discord config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/discord"
+    state: directory
+    mode: '0755'
+
+- name: Check for existing Discord settings
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
+  register: discord_settings_file
+
+- name: Read existing Discord settings
+  ansible.builtin.slurp:
+    src: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
+  register: discord_settings_raw
+  when: discord_settings_file.stat.exists
+
+- name: Merge SKIP_HOST_UPDATE into existing settings
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
+    content: >-
+      {{
+        (discord_settings_raw.content | b64decode | from_json)
+        | combine({'SKIP_HOST_UPDATE': true})
+        | to_nice_json
+      }}
+    mode: '0644'
+    backup: true
+  when: discord_settings_file.stat.exists
+
+- name: Create Discord settings if absent
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
+    content: |
+      {
+          "SKIP_HOST_UPDATE": true
+      }
+    force: false
+    mode: '0644'
+  when: not discord_settings_file.stat.exists

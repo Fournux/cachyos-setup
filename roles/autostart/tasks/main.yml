@@ -1,0 +1,58 @@
+---
+- name: Create autostart directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/autostart"
+    state: directory
+    mode: '0755'
+
+- name: Create user applications directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.local/share/applications"
+    state: directory
+    mode: '0755'
+
+- name: Check application desktop directories
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  register: autostart_application_dir_stats
+  loop:
+    - "{{ ansible_facts.env.HOME }}/.local/share/applications"
+    - /usr/local/share/applications
+    - /usr/share/applications
+
+- name: Select existing application desktop directories
+  ansible.builtin.set_fact:
+    autostart_application_dirs: >-
+      {{ autostart_application_dir_stats.results
+         | selectattr('stat.isdir', 'defined')
+         | selectattr('stat.isdir')
+         | map(attribute='item')
+         | list }}
+
+- name: Find desktop files for autostart apps
+  ansible.builtin.find:
+    paths: "{{ autostart_application_dirs }}"
+    patterns: "{{ item }}.desktop"
+  register: autostart_desktop_file_search
+  loop: "{{ autostart_apps }}"
+
+- name: Warn about missing autostart desktop files
+  ansible.builtin.debug:
+    msg: >-
+      No desktop file was found for '{{ item.item }}'; its autostart entry was
+      not created.
+  when: item.files | length == 0
+  loop: "{{ autostart_desktop_file_search.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Copy desktop files to autostart
+  ansible.builtin.copy:
+    src: "{{ (item.files | sort(attribute='path') | first).path }}"
+    dest: "{{ ansible_facts.env.HOME }}/.config/autostart/{{ (item.files | sort(attribute='path') | first).path | basename }}"
+    mode: '0644'
+    remote_src: true
+  when: item.files | length > 0
+  loop: "{{ autostart_desktop_file_search.results }}"
+  loop_control:
+    label: "{{ item.item }}"

@@ -1,0 +1,80 @@
+---
+- name: Check whether v4l2loopback is loaded before a safe reload
+  become: true
+  ansible.builtin.stat:
+    path: "/sys/module/{{ v4l2loopback_module_name }}/refcnt"
+  register: v4l2loopback_module_refcount_file
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+  listen: Reload v4l2loopback safely
+
+- name: Read the v4l2loopback module reference count
+  become: true
+  ansible.builtin.slurp:
+    src: "/sys/module/{{ v4l2loopback_module_name }}/refcnt"
+  register: v4l2loopback_module_refcount_raw
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+    - (v4l2loopback_module_refcount_file.stat.exists | default(false))
+  listen: Reload v4l2loopback safely
+
+- name: Validate the v4l2loopback module reference count
+  ansible.builtin.assert:
+    that:
+      - >-
+        (v4l2loopback_module_refcount_raw.content | b64decode | trim)
+        is match('^[0-9]+$')
+    fail_msg: Refusing to unload v4l2loopback because its reference count is invalid.
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+    - (v4l2loopback_module_refcount_file.stat.exists | default(false))
+  listen: Reload v4l2loopback safely
+
+- name: Unload an idle v4l2loopback module without force
+  become: true
+  community.general.modprobe:
+    name: "{{ v4l2loopback_module_name }}"
+    state: absent
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+    - (v4l2loopback_module_refcount_file.stat.exists | default(false))
+    - >-
+      (v4l2loopback_module_refcount_raw.content | b64decode | trim | int) == 0
+  listen: Reload v4l2loopback safely
+
+- name: Report that busy v4l2loopback options require a reboot
+  ansible.builtin.debug:
+    msg: >-
+      v4l2loopback is currently in use and was not unloaded. Its new options
+      will apply after a reboot or a manual reload once all consumers stop.
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+    - (v4l2loopback_module_refcount_file.stat.exists | default(false))
+    - >-
+      (v4l2loopback_module_refcount_raw.content | b64decode | trim | int) > 0
+  listen: Reload v4l2loopback safely
+
+- name: Load v4l2loopback after a safe reload
+  become: true
+  community.general.modprobe:
+    name: "{{ v4l2loopback_module_name }}"
+    state: present
+  when:
+    - v4l2loopback_reload_on_options_change | bool
+    - v4l2loopback_load_now | bool
+  listen: Reload v4l2loopback safely
+
+- name: Report deferred v4l2loopback option application
+  ansible.builtin.debug:
+    msg: >-
+      v4l2loopback options changed without a live reload. They will apply the
+      next time the module is loaded or after a reboot.
+  when:
+    - not v4l2loopback_reload_on_options_change | bool or
+      not v4l2loopback_load_now | bool
+  listen: Reload v4l2loopback safely

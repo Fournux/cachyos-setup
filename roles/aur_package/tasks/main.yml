@@ -1,0 +1,74 @@
+---
+- name: Validate requested AUR package names
+  ansible.builtin.assert:
+    that:
+      - item is match('^[a-z0-9][a-z0-9@._+-]*$')
+    fail_msg: "Invalid AUR package name: {{ item }}"
+  loop: "{{ aur_package_packages }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Install AUR build dependencies and helper
+  become: true
+  community.general.pacman:
+    name: "{{ aur_package_dependencies }}"
+    state: present
+  when: aur_package_dependencies | length > 0
+
+- name: Query AUR package state
+  ansible.builtin.command:
+    argv:
+      - "{{ aur_package_pacman_executable }}"
+      - -Q
+      - --
+      - "{{ item }}"
+  register: aur_package_state
+  changed_when: false
+  failed_when: aur_package_state.rc not in [0, 1]
+  check_mode: false
+  loop: "{{ aur_package_packages }}"
+  loop_control:
+    label: "{{ item }}"
+
+- name: Compute missing AUR packages
+  ansible.builtin.set_fact:
+    aur_package_missing_packages: >-
+      {{
+        aur_package_state.results
+        | selectattr('rc', 'equalto', 1)
+        | map(attribute='item')
+        | list
+      }}
+  changed_when: false
+
+- name: Report missing AUR packages in check mode
+  ansible.builtin.debug:
+    msg: >-
+      Would install AUR packages:
+      {{ aur_package_missing_packages | join(', ') }}
+  when:
+    - ansible_check_mode
+    - aur_package_missing_packages | length > 0
+  changed_when: true
+
+- name: Install missing AUR packages
+  ansible.builtin.command:
+    argv: >-
+      {{
+        [
+          aur_package_helper,
+          '--sudo',
+          aur_package_privilege_escalation_executable,
+          '-S',
+          '--needed',
+          '--noconfirm',
+          '--'
+        ]
+        + aur_package_missing_packages
+      }}
+  environment:
+    SHELL: /bin/bash
+  when:
+    - not ansible_check_mode
+    - aur_package_missing_packages | length > 0
+  changed_when: true

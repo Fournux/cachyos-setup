@@ -1,0 +1,180 @@
+---
+- name: Install Jellyfin server
+  become: true
+  community.general.pacman:
+    name: "{{ jellyfin_packages }}"
+    state: present
+
+- name: Install Jellyfin hardware acceleration packages
+  become: true
+  community.general.pacman:
+    name: "{{ jellyfin_hardware_acceleration_packages }}"
+    state: present
+  when: jellyfin_hardware_acceleration_enabled | bool
+
+- name: Install UFW for Jellyfin rules
+  become: true
+  community.general.pacman:
+    name: "{{ jellyfin_ufw_package }}"
+    state: present
+  when: jellyfin_manage_ufw | bool
+
+- name: Verify the Jellyfin service account exists
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ jellyfin_service_user }}"
+
+- name: Create Jellyfin media access group
+  become: true
+  ansible.builtin.group:
+    name: "{{ jellyfin_media_group }}"
+    system: true
+    state: present
+
+- name: Grant the logged-in user media access
+  become: true
+  ansible.builtin.user:
+    name: "{{ ansible_facts.user_id }}"
+    groups: "{{ jellyfin_media_group }}"
+    append: true
+
+- name: Grant Jellyfin media access
+  become: true
+  ansible.builtin.user:
+    name: "{{ jellyfin_service_user }}"
+    groups: "{{ jellyfin_media_group }}"
+    append: true
+  notify: Restart Jellyfin
+
+- name: Read available hardware access groups
+  ansible.builtin.getent:
+    database: group
+
+- name: Grant Jellyfin access to available video devices
+  become: true
+  ansible.builtin.user:
+    name: "{{ jellyfin_service_user }}"
+    groups: "{{ item }}"
+    append: true
+  loop: "{{ jellyfin_hardware_access_groups }}"
+  when:
+    - jellyfin_hardware_acceleration_enabled | bool
+    - item in (ansible_facts.getent_group | default({}))
+  notify: Restart Jellyfin
+
+- name: Revoke Jellyfin hardware access when acceleration is disabled
+  become: true
+  ansible.builtin.command:
+    argv:
+      - /usr/bin/gpasswd
+      - --delete
+      - "{{ jellyfin_service_user }}"
+      - "{{ item }}"
+  loop: "{{ jellyfin_hardware_access_groups }}"
+  when:
+    - not jellyfin_hardware_acceleration_enabled | bool
+    - item in (ansible_facts.getent_group | default({}))
+    - >-
+      jellyfin_service_user in
+      (ansible_facts.getent_group[item][2] | default('') | split(','))
+  changed_when: true
+  notify: Restart Jellyfin
+
+- name: Create Jellyfin media library directories
+  become: true
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ jellyfin_media_owner }}"
+    group: "{{ jellyfin_media_group }}"
+    mode: "{{ jellyfin_media_directory_mode }}"
+  loop: "{{ jellyfin_media_directories }}"
+
+- name: Validate the Jellyfin firewall scope
+  ansible.builtin.assert:
+    that:
+      - jellyfin_allowed_networks | length > 0
+      - "'0.0.0.0/0' not in jellyfin_allowed_networks"
+      - "'::/0' not in jellyfin_allowed_networks"
+      - "'0.0.0.0/0' not in jellyfin_ufw_remove_networks"
+      - "'::/0' not in jellyfin_ufw_remove_networks"
+      - >-
+        jellyfin_allowed_networks
+        | intersect(jellyfin_ufw_remove_networks)
+        | length == 0
+    fail_msg: >-
+      jellyfin_allowed_networks must contain at least one restricted network;
+      world-open Jellyfin rules are intentionally rejected.
+  when: jellyfin_manage_ufw | bool
+
+- name: Remove Jellyfin HTTP access from retired networks
+  become: true
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: tcp
+    from_ip: "{{ item }}"
+    port: "{{ jellyfin_http_port }}"
+    delete: true
+  loop: "{{ jellyfin_ufw_remove_networks }}"
+  when: jellyfin_manage_ufw | bool
+
+- name: Remove Jellyfin discovery access from retired networks
+  become: true
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: udp
+    from_ip: "{{ item }}"
+    port: "{{ jellyfin_discovery_port }}"
+    delete: true
+  loop: "{{ jellyfin_ufw_remove_networks }}"
+  when: jellyfin_manage_ufw | bool
+
+- name: Allow Jellyfin HTTP from approved networks
+  become: true
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: tcp
+    from_ip: "{{ item }}"
+    port: "{{ jellyfin_http_port }}"
+    comment: Jellyfin HTTP from approved network
+  loop: "{{ jellyfin_allowed_networks }}"
+  when: jellyfin_manage_ufw | bool
+
+- name: Allow Jellyfin discovery from approved networks
+  become: true
+  community.general.ufw:
+    rule: allow
+    direction: in
+    proto: udp
+    from_ip: "{{ item }}"
+    port: "{{ jellyfin_discovery_port }}"
+    comment: Jellyfin discovery from approved network
+  loop: "{{ jellyfin_allowed_networks }}"
+  when: jellyfin_manage_ufw | bool
+
+- name: Set a deny-by-default UFW incoming policy when enabling UFW
+  become: true
+  community.general.ufw:
+    direction: incoming
+    policy: "{{ jellyfin_ufw_default_incoming_policy }}"
+  when:
+    - jellyfin_manage_ufw | bool
+    - jellyfin_enable_ufw | bool
+
+- name: Explicitly enable UFW when requested
+  become: true
+  community.general.ufw:
+    state: enabled
+  when:
+    - jellyfin_manage_ufw | bool
+    - jellyfin_enable_ufw | bool
+
+- name: Enable and start Jellyfin
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ jellyfin_service_name }}"
+    state: started
+    enabled: true

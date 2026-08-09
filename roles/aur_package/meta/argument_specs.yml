@@ -1,0 +1,18 @@
+---
+argument_specs:
+  main:
+    short_description: Install a declared list of AUR packages with yay
+    options:
+      aur_package_packages:
+        type: list
+        elements: str
+        default: []
+      aur_package_dependencies:
+        type: list
+        elements: str
+        default:
+          - base-devel
+          - yay
+      aur_package_helper:
+        type: str
+        default: yay

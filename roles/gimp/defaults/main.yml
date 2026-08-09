@@ -1,0 +1,6 @@
+---
+gimp_packages:
+  - gimp
+
+gimp_config_version_fallback: '3.2'
+gimp_remove_legacy_system_plugin: true

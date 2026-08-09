@@ -1,0 +1,36 @@
+---
+- name: Check Guild Wars Proton prefixes
+  ansible.builtin.stat:
+    path: "{{ item }}/{{ gwtoolbox_game_exe_relative_path }}"
+  loop: "{{ gwtoolbox_prefix_candidates }}"
+  register: gwtoolbox_game_exe_stats
+
+- name: Select Guild Wars Proton prefix
+  ansible.builtin.set_fact:
+    gwtoolbox_prefix_path: >-
+      {{ gwtoolbox_game_exe_stats.results
+         | selectattr('stat.exists')
+         | map(attribute='item')
+         | first
+         | default('') }}
+
+- name: Skip GWToolbox config when Guild Wars is not installed
+  ansible.builtin.debug:
+    msg: "Guild Wars Steam/Proton prefix not found; skipping GWToolbox config deployment."
+  when: gwtoolbox_prefix_path | length == 0
+
+- name: Deploy GWToolbox config
+  when: gwtoolbox_prefix_path | length > 0
+  block:
+    - name: Create GWToolbox config directory
+      ansible.builtin.file:
+        path: "{{ gwtoolbox_prefix_path }}/{{ gwtoolbox_config_relative_path }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy selected GWToolbox config files
+      ansible.builtin.copy:
+        src: "configs/default/{{ item }}"
+        dest: "{{ gwtoolbox_prefix_path }}/{{ gwtoolbox_config_relative_path }}/{{ item }}"
+        mode: '0644'
+      loop: "{{ gwtoolbox_config_files }}"

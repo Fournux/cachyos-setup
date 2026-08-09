@@ -1,0 +1,8 @@
+---
+- name: Install desktop-specific AUR packages
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages: "{{ desktop_aur_packages }}"

@@ -1,0 +1,7 @@
+---
+dotfiles_ghostty_packages:
+  - ghostty
+
+dotfiles_bun_executable: /usr/bin/bun
+dotfiles_omp_package: '@oh-my-pi/pi-coding-agent'
+dotfiles_omp_version: '17.2.12'

@@ -1,0 +1,8 @@
+---
+aur_package_packages: []
+aur_package_dependencies:
+  - base-devel
+  - yay
+aur_package_helper: /usr/bin/yay
+aur_package_pacman_executable: /usr/bin/pacman
+aur_package_privilege_escalation_executable: /usr/bin/pkexec

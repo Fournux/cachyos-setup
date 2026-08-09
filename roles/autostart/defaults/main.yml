@@ -1,0 +1,5 @@
+---
+autostart_apps:
+  - discord
+  - steam
+  - octopi-notifier

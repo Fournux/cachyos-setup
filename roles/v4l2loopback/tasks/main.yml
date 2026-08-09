@@ -1,0 +1,94 @@
+---
+- name: Check the running kernel pkgbase metadata
+  become: true
+  ansible.builtin.stat:
+    path: "{{ v4l2loopback_kernel_pkgbase_path }}"
+    follow: true
+  register: v4l2loopback_kernel_pkgbase_file
+
+- name: Require kernel pkgbase metadata
+  ansible.builtin.assert:
+    that:
+      - v4l2loopback_kernel_pkgbase_file.stat.exists | default(false)
+      - v4l2loopback_kernel_pkgbase_file.stat.isreg | default(false)
+    fail_msg: >-
+      Cannot derive the running kernel headers package because
+      {{ v4l2loopback_kernel_pkgbase_path }} is missing or is not a regular file.
+
+- name: Read the running kernel pkgbase
+  become: true
+  ansible.builtin.slurp:
+    src: "{{ v4l2loopback_kernel_pkgbase_path }}"
+  register: v4l2loopback_kernel_pkgbase_raw
+
+- name: Record the running kernel pkgbase
+  ansible.builtin.set_fact:
+    v4l2loopback_kernel_pkgbase: >-
+      {{ v4l2loopback_kernel_pkgbase_raw.content | b64decode | trim }}
+
+- name: Validate the running kernel pkgbase
+  ansible.builtin.assert:
+    that:
+      - v4l2loopback_kernel_pkgbase | length > 0
+      - v4l2loopback_kernel_pkgbase is match('^[A-Za-z0-9@._+:-]+$')
+    fail_msg: >-
+      {{ v4l2loopback_kernel_pkgbase_path }} does not contain a valid package base.
+
+- name: Derive the running kernel headers package
+  ansible.builtin.set_fact:
+    v4l2loopback_headers_pkg: "{{ v4l2loopback_kernel_pkgbase }}-headers"
+
+- name: Install kernel headers and v4l2loopback DKMS package
+  become: true
+  community.general.pacman:
+    name: "{{ [v4l2loopback_headers_pkg] + v4l2loopback_packages }}"
+    state: present
+
+- name: Validate v4l2loopback module options
+  ansible.builtin.assert:
+    that:
+      - (v4l2loopback_devices | string) is match('^[0-9]+$')
+      - v4l2loopback_devices | int > 0
+      - (v4l2loopback_video_nr | string) is match('^[0-9]+$')
+      - v4l2loopback_video_nr | int >= 0
+      - v4l2loopback_card_label | string | length > 0
+    fail_msg: Invalid v4l2loopback module options.
+
+- name: Configure v4l2loopback module options
+  become: true
+  ansible.builtin.copy:
+    dest: "{{ v4l2loopback_options_path }}"
+    content: >
+      options {{ v4l2loopback_module_name }}
+      devices={{ v4l2loopback_devices | int }}
+      video_nr={{ v4l2loopback_video_nr | int }}
+      card_label={{ v4l2loopback_card_label | string | to_json }}
+      exclusive_caps={{ 1 if v4l2loopback_exclusive_caps | bool else 0 }}
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload v4l2loopback safely
+
+- name: Enable v4l2loopback at boot
+  become: true
+  ansible.builtin.copy:
+    dest: "{{ v4l2loopback_modules_load_path }}"
+    content: "{{ v4l2loopback_module_name }}\n"
+    owner: root
+    group: root
+    mode: '0644'
+  when: v4l2loopback_load_on_boot | bool
+
+- name: Disable automatic v4l2loopback loading when requested
+  become: true
+  ansible.builtin.file:
+    path: "{{ v4l2loopback_modules_load_path }}"
+    state: absent
+  when: not v4l2loopback_load_on_boot | bool
+
+- name: Load v4l2loopback module
+  become: true
+  community.general.modprobe:
+    name: "{{ v4l2loopback_module_name }}"
+    state: present
+  when: v4l2loopback_load_now | bool

@@ -1,0 +1,189 @@
+{
+   "Active Quest Info": {
+      "pos": [
+         43,
+         505
+      ],
+      "size": [
+         475,
+         109
+      ],
+      "collapsed": false
+   },
+   "Armory": {
+      "pos": [
+         1105,
+         616
+      ],
+      "size": [
+         350,
+         208
+      ],
+      "collapsed": false
+   },
+   "Builds": {
+      "pos": [
+         1130,
+         595
+      ],
+      "size": [
+         300,
+         250
+      ],
+      "collapsed": false
+   },
+   "Clock": {
+      "pos": [
+         2283,
+         415
+      ],
+      "size": [
+         250,
+         90
+      ],
+      "collapsed": false
+   },
+   "Completion": {
+      "pos": [
+         890,
+         675
+      ],
+      "size": [
+         780,
+         90
+      ],
+      "collapsed": false
+   },
+   "Daily Quests": {
+      "pos": [
+         1130,
+         595
+      ],
+      "size": [
+         300,
+         250
+      ],
+      "collapsed": false
+   },
+   "Damage": {
+      "pos": [
+         2038,
+         584
+      ],
+      "size": [
+         130,
+         333
+      ],
+      "collapsed": false
+   },
+   "Default": {
+      "pos": [
+         60,
+         60
+      ],
+      "size": [
+         400,
+         400
+      ],
+      "collapsed": false
+   },
+   "Latency": {
+      "pos": [
+         2473,
+         28
+      ],
+      "size": [
+         69,
+         40
+      ],
+      "collapsed": false
+   },
+   "Minimap": {
+      "pos": [
+         60,
+         60
+      ],
+      "size": [
+         500,
+         500
+      ],
+      "collapsed": false
+   },
+   "Settings": {
+      "pos": [
+         187,
+         189
+      ],
+      "size": [
+         768,
+         768
+      ],
+      "collapsed": false
+   },
+   "Timer": {
+      "pos": [
+         49,
+         75
+      ],
+      "size": [
+         156,
+         54
+      ],
+      "collapsed": false
+   },
+   "Toolbox": {
+      "pos": [
+         2359,
+         1342
+      ],
+      "size": [
+         149,
+         279
+      ],
+      "collapsed": true
+   },
+   "Trade": {
+      "pos": [
+         930,
+         520
+      ],
+      "size": [
+         1030,
+         621
+      ],
+      "collapsed": false
+   },
+   "Travel": {
+      "pos": [
+         1130,
+         599
+      ],
+      "size": [
+         300,
+         242
+      ],
+      "collapsed": false
+   },
+   "World Map": {
+      "pos": [
+         16,
+         16
+      ],
+      "size": [
+         251,
+         168
+      ],
+      "collapsed": false
+   },
+   "breakout_btn": {
+      "pos": [
+         60,
+         60
+      ],
+      "size": [
+         36,
+         36
+      ],
+      "collapsed": false
+   }
+}

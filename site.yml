@@ -1,0 +1,78 @@
+---
+- name: CachyOS workstation setup
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  force_handlers: true
+
+  pre_tasks:
+    - name: Validate the target workstation
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.os_family == 'Archlinux'
+          - ansible_facts.service_mgr == 'systemd'
+          - ansible_facts.user_uid | int != 0
+        fail_msg: >-
+          This playbook must run as a regular user on an Arch Linux system
+          using systemd. Use Ansible become for privileged tasks; do not run
+          ansible-playbook through sudo.
+      tags: always
+
+    - name: Detect machine profile
+      ansible.builtin.set_fact:
+        machine_profile: "{{ machine_profiles.get(ansible_facts.hostname, 'unknown') }}"
+      tags: always
+
+    - name: Stop on unknown machine profile
+      ansible.builtin.fail:
+        msg: "Unknown hostname '{{ ansible_facts.hostname }}'. Add it to group_vars/all/main.yml before running the setup."
+      when: machine_profile == 'unknown'
+      tags: always
+
+    - name: Show machine profile
+      ansible.builtin.debug:
+        msg: "Running setup for profile: {{ machine_profile }} ({{ ansible_facts.hostname }})"
+      tags: always
+
+  roles:
+    - role: packages
+      tags: [packages]
+    - role: gimp
+      tags: [gimp]
+    - role: bash
+      tags: [bash, shell]
+    - role: lact
+      tags: [lact, gpu]
+    - role: v4l2loopback
+      tags: [v4l2loopback, camera]
+    - role: podman
+      tags: [podman, containers]
+    - role: mpv
+      tags: [mpv]
+    - role: discord
+      tags: [discord]
+    - role: desktop
+      when: machine_profile == 'desktop'
+      tags: [desktop, packages]
+    - role: jellyfin
+      when: machine_profile == 'desktop'
+      tags: [jellyfin, media]
+    - role: laptop
+      when: machine_profile == 'laptop'
+      tags: [laptop, packages]
+    - role: environment
+      tags: [environment]
+    - role: dns
+      tags: [dns, network]
+    - role: plymouth
+      tags: [plymouth, boot]
+    - role: limine
+      tags: [limine, boot]
+    - role: gnome
+      tags: [gnome]
+    - role: autostart
+      tags: [autostart]
+    - role: gwtoolbox
+      tags: [gwtoolbox, gaming]
+    - role: dotfiles
+      tags: [dotfiles]

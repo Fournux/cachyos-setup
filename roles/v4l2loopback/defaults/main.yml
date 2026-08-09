@@ -1,0 +1,17 @@
+---
+v4l2loopback_packages:
+  - v4l2loopback-dkms
+
+v4l2loopback_kernel_pkgbase_path: >-
+  /usr/lib/modules/{{ ansible_facts.kernel }}/pkgbase
+v4l2loopback_module_name: v4l2loopback
+v4l2loopback_options_path: /etc/modprobe.d/v4l2loopback.conf
+v4l2loopback_modules_load_path: /etc/modules-load.d/v4l2loopback.conf
+
+v4l2loopback_devices: 1
+v4l2loopback_video_nr: 1
+v4l2loopback_card_label: Logitech Cam
+v4l2loopback_exclusive_caps: true
+v4l2loopback_load_on_boot: true
+v4l2loopback_load_now: true
+v4l2loopback_reload_on_options_change: true

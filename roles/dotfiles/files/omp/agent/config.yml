@@ -1,0 +1,18 @@
+symbolPreset: unicode
+theme:
+  dark: titanium
+setupVersion: 1
+memory:
+  backend: mnemopi
+mnemopi:
+  scoping: per-project-tagged
+modelRoles:
+  smol: openai-codex/gpt-5.6-luna:high
+  slow: openai-codex/gpt-5.6-sol:high
+  default: openai-codex/gpt-5.6-terra:high
+defaultThinkingLevel: auto
+display:
+  showTokenUsage: false
+tui:
+  textSizing: false
+hideThinkingBlock: true
