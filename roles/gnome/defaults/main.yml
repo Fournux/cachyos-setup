@@ -13,10 +13,6 @@ gnome_extensions:
     enabled: true
   - uuid: user-theme@gnome-shell-extensions.gcampax.github.com
     enabled: true
-  - uuid: arcmenu@arcmenu.com
-    enabled: true
-  - uuid: weatherpanel@attentivecoder
-    enabled: true
   - uuid: just-perfection-desktop@just-perfection
     enabled: true
   - uuid: smart-home@chlumskyvaclav.gmail.com

@@ -79,7 +79,6 @@
         quiet: true
         that:
           - "'smart-home@chlumskyvaclav.gmail.com' in static_gnome_dconf"
-          - "'weatherpanel@attentivecoder' in static_gnome_dconf"
           - >-
             gnome_extensions
             | selectattr('enabled', 'equalto', true)
