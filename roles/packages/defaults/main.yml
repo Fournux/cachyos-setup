@@ -35,7 +35,6 @@ packages_pacman_packages:
   - gst-plugins-ugly
   - gst-libav
   - gst-plugin-va
-  - octopi
 
 packages_aur_packages:
   - visual-studio-code-bin
