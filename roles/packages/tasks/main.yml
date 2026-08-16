@@ -41,3 +41,31 @@
     state: present
   when: packages_flatpak_packages | length > 0
   tags: [flatpak]
+
+# Remove when https://github.com/bottlesdevs/Bottles/issues/4695 is fixed upstream.
+- name: Read Bottles Flatpak overrides
+  ansible.builtin.command:
+    argv:
+      - flatpak
+      - override
+      - --user
+      - --show
+      - com.usebottles.bottles
+  register: packages_bottles_flatpak_overrides
+  changed_when: false
+  check_mode: false
+  tags: [flatpak]
+
+- name: Allow Bottles to access UMU runtime data
+  ansible.builtin.command:
+    argv:
+      - flatpak
+      - override
+      - --user
+      - "--filesystem={{ ansible_facts.env.HOME }}/.local/share/umu:create"
+      - com.usebottles.bottles
+  changed_when: true
+  when: >-
+    ansible_facts.env.HOME + '/.local/share/umu:create'
+    not in packages_bottles_flatpak_overrides.stdout
+  tags: [flatpak]
