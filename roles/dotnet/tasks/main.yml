@@ -1,0 +1,50 @@
+---
+- name: Create local dotnet-install directory
+  ansible.builtin.file:
+    path: "{{ dotnet_install_script_path | dirname }}"
+    state: directory
+    mode: '0755'
+
+- name: Download the official Microsoft dotnet-install script
+  ansible.builtin.get_url:
+    url: "{{ dotnet_install_script_url }}"
+    dest: "{{ dotnet_install_script_path }}"
+    mode: '0755'
+    force: false
+
+- name: Install configured .NET SDKs and runtimes
+  ansible.builtin.command:
+    argv: >-
+      {{
+        [
+          dotnet_install_script_path,
+          '--install-dir',
+          dotnet_install_dir,
+          '--no-path'
+        ]
+        + (
+          ['--channel', item]
+          if item is string
+          else (
+            (['--channel', item.channel | string] if item.channel is defined else [])
+            + (['--version', item.version | string] if item.version is defined else [])
+            + (['--quality', item.quality | string] if item.quality is defined else [])
+            + (['--runtime', item.runtime | string] if item.runtime is defined else [])
+            + (['--architecture', item.architecture | string] if item.architecture is defined else [])
+          )
+        )
+      }}
+  loop: "{{ dotnet_install_versions }}"
+  loop_control:
+    label: >-
+      {{
+        item
+        if item is string
+        else (
+          (item.runtime + ' ' if item.runtime is defined else 'sdk ')
+          + (item.channel if item.channel is defined else item.version | default('default'))
+        )
+      }}
+  register: dotnet_install_results
+  changed_when: "'is already installed' not in dotnet_install_results.stdout"
+  when: dotnet_install_versions | length > 0

@@ -1,0 +1,7 @@
+---
+dotnet_install_dir: "{{ ansible_facts.env.HOME }}/.dotnet"
+dotnet_install_script_url: https://dot.net/v1/dotnet-install.sh
+dotnet_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/dotnet-install/dotnet-install.sh"
+dotnet_install_versions:
+  - channel: STS
+  - channel: LTS

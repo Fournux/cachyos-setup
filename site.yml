@@ -37,6 +37,8 @@
   roles:
     - role: packages
       tags: [packages]
+    - role: dotnet
+      tags: [dotnet]
     - role: gimp
       tags: [gimp]
     - role: bash
