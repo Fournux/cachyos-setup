@@ -60,3 +60,12 @@
       alias la='ls -lAh --color=auto'
       alias grep='grep --color=auto'
       alias task='go-task'
+
+      reload-env-vars() {
+        local assignment
+        while IFS= read -r assignment; do
+          export "$assignment"
+        done < <(/usr/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
+        dbus-update-activation-environment --systemd --all
+        echo "Environment reloaded."
+      }

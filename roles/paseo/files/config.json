@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "daemon": {
+    "listen": "0.0.0.0:6767",
+    "cors": {
+      "allowedOrigins": [
+        "https://app.paseo.sh"
+      ]
+    },
+    "relay": {
+      "enabled": false
+    }
+  },
+  "app": {
+    "baseUrl": "https://app.paseo.sh"
+  },
+  "agents": {
+    "providers": {
+      "omp": {
+        "enabled": true
+      }
+    }
+  },
+  "features": {
+    "dictation": {
+      "enabled": false
+    },
+    "voiceMode": {
+      "enabled": false
+    }
+  }
+}

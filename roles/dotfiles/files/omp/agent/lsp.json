@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "csharp-ls": {
+      "command": "csharp-ls",
+      "fileTypes": [".cs"],
+      "rootMarkers": [".git", "*.sln", "*.slnx", "*.csproj"]
+    }
+  }
+}

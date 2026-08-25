@@ -55,7 +55,7 @@
       tags: [discord]
     - role: desktop
       when: machine_profile == 'desktop'
-      tags: [desktop, packages]
+      tags: [desktop]
     - role: jellyfin
       when: machine_profile == 'desktop'
       tags: [jellyfin, media]
@@ -78,3 +78,5 @@
       tags: [gwtoolbox, gaming]
     - role: dotfiles
       tags: [dotfiles]
+    - role: paseo
+      tags: [paseo]

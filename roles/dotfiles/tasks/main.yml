@@ -100,3 +100,10 @@
     dest: "{{ ansible_facts.env.HOME }}/.omp/agent/APPEND_SYSTEM.md"
     mode: '0644'
   tags: [omp]
+
+- name: Deploy OMP LSP config
+  ansible.builtin.copy:
+    src: omp/agent/lsp.json
+    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/lsp.json"
+    mode: '0644'
+  tags: [omp]

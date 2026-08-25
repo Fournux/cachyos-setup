@@ -38,6 +38,7 @@ packages_aur_packages:
   - gapless
   - papirus-icon-theme-git
   - opera
+  - paseo-cli
 
 packages_flatpak_packages_required:
   - flatpak
