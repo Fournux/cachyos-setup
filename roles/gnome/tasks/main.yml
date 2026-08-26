@@ -7,6 +7,41 @@
   when: gnome_required_packages | length > 0
   tags: [gnome, gnome_extensions]
 
+- name: Create system dconf lock directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/dconf/db/local.d/locks
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags: [gnome, dconf]
+
+- name: Disable automatic suspend system-wide
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/local.d/01-power
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      [org/gnome/settings-daemon/plugins/power]
+      sleep-inactive-ac-type='nothing'
+  notify: Update dconf database
+  tags: [gnome, dconf]
+
+- name: Lock automatic suspend policy
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/dconf/db/local.d/locks/power
+    owner: root
+    group: root
+    mode: '0644'
+    content: |
+      /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type
+  notify: Update dconf database
+  tags: [gnome, dconf]
+
 - name: Detect an active GNOME user session
   ansible.builtin.set_fact:
     gnome_session_available: >-
