@@ -46,6 +46,8 @@ require_task "$flatpak_tasks" 'packages : Install Flatpak packages'
 packages_tasks="$(list_tasks packages)"
 require_task "$packages_tasks" 'Install desktop-specific AUR packages'
 reject_task "$packages_tasks" 'desktop : Enable Wake-on-LAN globally in NetworkManager'
+require_task "$packages_tasks" 'laptop : Install laptop-specific packages'
+reject_task "$packages_tasks" 'laptop : Enable supergfxd service'
 
 dns_tasks="$(list_tasks dns)"
 require_task "$dns_tasks" 'dns : Install Avahi'
@@ -55,8 +57,8 @@ require_task "$gimp_tasks" 'gimp : Install GIMP'
 require_task "$gimp_tasks" 'gimp : Install the arrow Script-Fu plugin for the user'
 
 paseo_tasks="$(list_tasks paseo)"
+require_task "$paseo_tasks" 'Install Paseo CLI'
 require_task "$paseo_tasks" 'paseo : Deploy Paseo user service'
 require_task "$paseo_tasks" 'paseo : Enable and start Paseo service'
 require_task "$paseo_tasks" 'paseo : Allow Paseo HTTP from approved networks'
-
 printf 'Tag-selection invariants passed.\n'

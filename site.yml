@@ -23,10 +23,13 @@
         machine_profile: "{{ machine_profiles.get(ansible_facts.hostname, 'unknown') }}"
       tags: always
 
-    - name: Stop on unknown machine profile
+    - name: Stop on invalid machine profile
       ansible.builtin.fail:
-        msg: "Unknown hostname '{{ ansible_facts.hostname }}'. Add it to group_vars/all/main.yml before running the setup."
-      when: machine_profile == 'unknown'
+        msg: >-
+          Invalid machine profile '{{ machine_profile }}' for hostname
+          '{{ ansible_facts.hostname }}'. Map it to 'desktop' or 'laptop' in
+          group_vars/all/main.yml.
+      when: machine_profile not in ['desktop', 'laptop']
       tags: always
 
     - name: Show machine profile
@@ -61,7 +64,7 @@
       tags: [jellyfin, media]
     - role: laptop
       when: machine_profile == 'laptop'
-      tags: [laptop, packages]
+      tags: [laptop]
     - role: environment
       tags: [environment]
     - role: dns
@@ -79,4 +82,5 @@
     - role: dotfiles
       tags: [dotfiles]
     - role: paseo
+      when: machine_profile == 'desktop'
       tags: [paseo]

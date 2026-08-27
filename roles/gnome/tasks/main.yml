@@ -15,6 +15,7 @@
     owner: root
     group: root
     mode: '0755'
+  when: machine_profile == 'desktop'
   tags: [gnome, dconf]
 
 - name: Disable automatic suspend system-wide
@@ -27,6 +28,7 @@
     content: |
       [org/gnome/settings-daemon/plugins/power]
       sleep-inactive-ac-type='nothing'
+  when: machine_profile == 'desktop'
   notify: Update dconf database
   tags: [gnome, dconf]
 
@@ -39,6 +41,7 @@
     mode: '0644'
     content: |
       /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type
+  when: machine_profile == 'desktop'
   notify: Update dconf database
   tags: [gnome, dconf]
 

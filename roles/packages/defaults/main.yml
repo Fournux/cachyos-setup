@@ -17,7 +17,7 @@ packages_pacman_packages:
   - heroic-games-launcher
   - go-task
   - rustup
-  - godot-mono
+  - godot
   - qbittorrent
   - ttf-roboto-mono
   - gnome-tweaks
@@ -38,7 +38,6 @@ packages_aur_packages:
   - gapless
   - papirus-icon-theme-git
   - opera
-  - paseo-cli
 
 packages_flatpak_packages_required:
   - flatpak

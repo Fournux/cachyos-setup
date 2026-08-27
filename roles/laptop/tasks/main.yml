@@ -8,6 +8,7 @@
       - rog-control-center
       - solaar
     state: present
+  tags: [packages]
 
 - name: Enable supergfxd service
   become: true

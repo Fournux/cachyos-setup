@@ -88,16 +88,16 @@
     - not environment_user_dotnet_binary.stat.exists
     - not environment_system_dotnet_binary.stat.exists
 
-- name: Check for the Godot Mono executable
+- name: Check for the Godot executable
   ansible.builtin.stat:
-    path: /usr/bin/godot-mono
+    path: /usr/bin/godot
   register: environment_godot_binary
 
 - name: Write Godot environment
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
     content: |
-      GODOT=/usr/bin/godot-mono
+      GODOT=/usr/bin/godot
     mode: '0644'
   when: environment_godot_binary.stat.exists
 

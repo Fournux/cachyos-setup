@@ -1,4 +1,13 @@
 ---
+- name: Install Paseo CLI
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages: "{{ paseo_aur_packages }}"
+  tags: [packages]
+
 - name: Enable systemd user lingering
   become: true
   ansible.builtin.command:
