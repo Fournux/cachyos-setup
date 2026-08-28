@@ -80,6 +80,26 @@
   changed_when: true
   tags: [omp]
 
+- name: Report the latest Ponytail installation in check mode
+  ansible.builtin.debug:
+    msg: Would install the latest Ponytail version through OMP.
+  when: ansible_check_mode
+  changed_when: true
+  tags: [omp]
+
+- name: Install the latest Ponytail version through OMP
+  ansible.builtin.command:
+    argv:
+      - "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
+      - plugin
+      - install
+      - '@dietrichgebert/ponytail@latest'
+  environment:
+    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
+  when: not ansible_check_mode
+  changed_when: true
+  tags: [omp]
+
 - name: Create OMP agent config directory
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/.omp/agent"
@@ -99,6 +119,13 @@
     src: omp/agent/APPEND_SYSTEM.md
     dest: "{{ ansible_facts.env.HOME }}/.omp/agent/APPEND_SYSTEM.md"
     mode: '0644'
+  tags: [omp]
+
+- name: Deploy OMP MCP config
+  ansible.builtin.copy:
+    src: omp/agent/mcp.json
+    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/mcp.json"
+    mode: '0600'
   tags: [omp]
 
 - name: Deploy OMP LSP config
