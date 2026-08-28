@@ -20,84 +20,45 @@
     mode: '0644'
   tags: [ghostty]
 
-- name: Check for the OMP executable
-  ansible.builtin.stat:
-    path: "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
-  register: dotfiles_omp_binary
-  tags: [omp]
-
-- name: Read the installed OMP version
-  ansible.builtin.command:
-    argv:
-      - "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
-      - --version
-  environment:
-    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
-  register: dotfiles_omp_version_result
-  changed_when: false
-  failed_when: false
-  check_mode: false
-  when: dotfiles_omp_binary.stat.exists
-  tags: [omp]
-
-- name: Determine whether OMP must be installed
-  ansible.builtin.set_fact:
-    dotfiles_omp_needs_install: >-
-      {{
-        not dotfiles_omp_binary.stat.exists
-        or
-        (dotfiles_omp_version_result.rc | default(1) != 0)
-        or
-        (dotfiles_omp_version_result.stdout | default(''))
-        != 'omp/' + dotfiles_omp_version
-      }}
-  changed_when: false
-  tags: [omp]
-
-- name: Report the required OMP installation in check mode
+- name: Report the latest OMP installation in check mode
   ansible.builtin.debug:
-    msg: >-
-      Would install {{ dotfiles_omp_package }}@{{ dotfiles_omp_version }}.
-  when:
-    - ansible_check_mode
-    - dotfiles_omp_needs_install
+    msg: "Would install {{ dotfiles_omp_package }}@latest."
+  when: ansible_check_mode
   changed_when: true
   tags: [omp]
 
-- name: Install the pinned OMP version with Bun
+- name: Install the latest OMP version with Bun
   ansible.builtin.command:
     argv:
       - "{{ dotfiles_bun_executable }}"
       - install
       - --global
-      - "{{ dotfiles_omp_package }}@{{ dotfiles_omp_version }}"
+      - "{{ dotfiles_omp_package }}@latest"
   environment:
     BUN_INSTALL: "{{ ansible_facts.env.HOME }}/.bun"
     PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
-  when:
-    - not ansible_check_mode
-    - dotfiles_omp_needs_install
-  changed_when: true
-  tags: [omp]
-
-- name: Report the latest Ponytail installation in check mode
-  ansible.builtin.debug:
-    msg: Would install the latest Ponytail version through OMP.
-  when: ansible_check_mode
-  changed_when: true
-  tags: [omp]
-
-- name: Install the latest Ponytail version through OMP
-  ansible.builtin.command:
-    argv:
-      - "{{ ansible_facts.env.HOME }}/.bun/bin/omp"
-      - plugin
-      - install
-      - '@dietrichgebert/ponytail@latest'
-  environment:
-    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
   when: not ansible_check_mode
   changed_when: true
+  tags: [omp]
+
+- name: Install OMP agent skills
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_bun_executable }}"
+      - x
+      - skills
+      - add
+      - "{{ item.repository }}"
+      - --skill
+      - "{{ item.name }}"
+      - --global
+      - --agent
+      - codex
+      - --yes
+    creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
+  loop: "{{ dotfiles_omp_agent_skills }}"
+  loop_control:
+    label: "{{ item.name }}"
   tags: [omp]
 
 - name: Create OMP agent config directory

@@ -4,4 +4,14 @@ dotfiles_ghostty_packages:
 
 dotfiles_bun_executable: /usr/bin/bun
 dotfiles_omp_package: '@oh-my-pi/pi-coding-agent'
-dotfiles_omp_version: '17.2.12'
+dotfiles_omp_agent_skills:
+  - repository: DietrichGebert/ponytail
+    name: ponytail-review
+  - repository: DietrichGebert/ponytail
+    name: ponytail-audit
+  - repository: mattpocock/skills
+    name: grilling
+  - repository: mattpocock/skills
+    name: grill-me
+  - repository: juliusbrussee/caveman
+    name: caveman
