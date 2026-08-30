@@ -52,8 +52,6 @@
       - --skill
       - "{{ item.name }}"
       - --global
-      - --agent
-      - codex
       - --yes
     creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
   loop: "{{ dotfiles_omp_agent_skills }}"

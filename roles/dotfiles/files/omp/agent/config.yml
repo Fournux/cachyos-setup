@@ -1,7 +1,7 @@
 symbolPreset: unicode
 theme:
   dark: titanium
-setupVersion: 1
+setupVersion: 2
 memory:
   backend: mnemopi
 mnemopi:
@@ -29,3 +29,12 @@ display:
 tui:
   textSizing: false
 hideThinkingBlock: true
+composer:
+  shape: band
+statusLine:
+  separator: powerline-thin
+  contextLine: embedded
+  sessionAccent: true
+  transparent: false
+  compactThinkingLevel: false
+  showHookStatus: true
