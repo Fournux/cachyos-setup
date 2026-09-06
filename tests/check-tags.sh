@@ -38,6 +38,7 @@ reject_task "$dconf_tasks" 'gnome : Fetch compatible extension metadata'
 dotfiles_tasks="$(list_tasks dotfiles)"
 require_task "$dotfiles_tasks" 'environment : Install Bun from the Arch repositories'
 require_task "$dotfiles_tasks" 'dotfiles : Install the latest OMP version with Bun'
+require_task "$dotfiles_tasks" 'dotfiles : Install agent skills'
 
 flatpak_tasks="$(list_tasks flatpak)"
 require_task "$flatpak_tasks" 'packages : Install Flatpak'

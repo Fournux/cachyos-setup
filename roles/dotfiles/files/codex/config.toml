@@ -1,0 +1,9 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+
+[mcp_servers.context-mode]
+command = "npx"
+args = ["-y", "context-mode"]
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"

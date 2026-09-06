@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "context-mode": {
+      "args": [
+        "-y",
+        "context-mode"
+      ],
+      "command": "npx",
+      "disabled": false
+    },
+    "context7": {
+      "disabled": false,
+      "serverUrl": "https://mcp.context7.com/mcp"
+    }
+  }
+}

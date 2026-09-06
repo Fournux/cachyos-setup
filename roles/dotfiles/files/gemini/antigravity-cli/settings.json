@@ -1,0 +1,25 @@
+{
+  "agentMode": "accept-edits",
+  "allowNonWorkspaceAccess": true,
+  "enableTelemetry": false,
+  "permissions": {
+    "allow": [
+      "command(*)",
+      "read_url(*)",
+      "mcp(*)",
+      "write_file(*)"
+    ],
+    "deny": [
+      "command(sudo)",
+      "command(su)",
+      "command(rm -rf /)",
+      "command(rm -rf /*)",
+      "command(rm -rf ~)",
+      "command(rm -rf ~/*)",
+      "command(mkfs.*)",
+      "command(dd)",
+      "command(shutdown)",
+      "command(reboot)"
+    ]
+  }
+}

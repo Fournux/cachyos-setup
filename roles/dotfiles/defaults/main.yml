@@ -4,7 +4,7 @@ dotfiles_ghostty_packages:
 
 dotfiles_bun_executable: /usr/bin/bun
 dotfiles_omp_package: '@oh-my-pi/pi-coding-agent'
-dotfiles_omp_agent_skills:
+dotfiles_agent_skills:
   - repository: DietrichGebert/ponytail
     name: ponytail-review
   - repository: DietrichGebert/ponytail

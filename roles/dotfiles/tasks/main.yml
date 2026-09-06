@@ -41,7 +41,7 @@
   changed_when: true
   tags: [omp]
 
-- name: Install OMP agent skills
+- name: Install agent skills
   ansible.builtin.command:
     argv:
       - "{{ dotfiles_bun_executable }}"
@@ -54,10 +54,10 @@
       - --global
       - --yes
     creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
-  loop: "{{ dotfiles_omp_agent_skills }}"
+  loop: "{{ dotfiles_agent_skills }}"
   loop_control:
     label: "{{ item.name }}"
-  tags: [omp]
+  tags: [omp, codex, antigravity, skills]
 
 - name: Create OMP agent config directory
   ansible.builtin.file:
@@ -93,3 +93,54 @@
     dest: "{{ ansible_facts.env.HOME }}/.omp/agent/lsp.json"
     mode: '0644'
   tags: [omp]
+
+- name: Create Codex config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.codex"
+    state: directory
+    mode: '0700'
+  tags: [codex]
+
+- name: Deploy Codex config
+  ansible.builtin.copy:
+    src: codex/config.toml
+    dest: "{{ ansible_facts.env.HOME }}/.codex/config.toml"
+    mode: '0600'
+  tags: [codex]
+
+- name: Create Antigravity config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.gemini/config"
+    state: directory
+    mode: '0700'
+  tags: [antigravity, gemini, skills]
+
+- name: Link agent skills to Antigravity global skills
+  ansible.builtin.file:
+    src: "{{ ansible_facts.env.HOME }}/.agents/skills"
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/skills"
+    state: link
+    force: true
+  tags: [antigravity, gemini, skills]
+
+- name: Deploy Antigravity MCP config
+  ansible.builtin.copy:
+    src: gemini/config/mcp_config.json
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/mcp_config.json"
+    mode: '0600'
+  tags: [antigravity, gemini]
+
+- name: Create Antigravity CLI directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli"
+    state: directory
+    mode: '0700'
+  tags: [antigravity, gemini]
+
+- name: Deploy Antigravity CLI settings
+  ansible.builtin.copy:
+    src: gemini/antigravity-cli/settings.json
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/settings.json"
+    mode: '0600'
+  tags: [antigravity, gemini]
+
