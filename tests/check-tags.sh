@@ -37,7 +37,8 @@ reject_task "$dconf_tasks" 'gnome : Fetch compatible extension metadata'
 
 dotfiles_tasks="$(list_tasks dotfiles)"
 require_task "$dotfiles_tasks" 'environment : Install Bun from the Arch repositories'
-require_task "$dotfiles_tasks" 'dotfiles : Install the latest OMP version with Bun'
+require_task "$dotfiles_tasks" 'dotfiles : Deploy Codex config'
+require_task "$dotfiles_tasks" 'dotfiles : Deploy Antigravity CLI settings'
 require_task "$dotfiles_tasks" 'dotfiles : Install agent skills'
 
 flatpak_tasks="$(list_tasks flatpak)"

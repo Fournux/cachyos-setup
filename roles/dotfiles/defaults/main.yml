@@ -3,7 +3,6 @@ dotfiles_ghostty_packages:
   - ghostty
 
 dotfiles_bun_executable: /usr/bin/bun
-dotfiles_omp_package: '@oh-my-pi/pi-coding-agent'
 dotfiles_agent_skills:
   - repository: DietrichGebert/ponytail
     name: ponytail-review
@@ -15,3 +14,5 @@ dotfiles_agent_skills:
     name: grill-me
   - repository: juliusbrussee/caveman
     name: caveman
+  - repository: leonardomso/rust-skills
+    name: rust-skills

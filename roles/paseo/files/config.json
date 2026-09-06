@@ -16,9 +16,6 @@
   },
   "agents": {
     "providers": {
-      "omp": {
-        "enabled": true
-      },
       "codex": {
         "enabled": true
       }

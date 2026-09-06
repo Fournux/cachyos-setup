@@ -4,14 +4,14 @@
   community.general.pacman:
     name: "{{ environment_bun_packages }}"
     state: present
-  tags: [bun, omp, dotfiles]
+  tags: [bun, dotfiles]
 
 - name: Create environment.d directory
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
     state: directory
     mode: '0755'
-  tags: [bun, omp, dotfiles]
+  tags: [bun, dotfiles]
 
 - name: Write Bun environment
   ansible.builtin.copy:
@@ -19,7 +19,7 @@
     content: |
       BUN_INSTALL=$HOME/.bun
     mode: '0644'
-  tags: [bun, omp, dotfiles]
+  tags: [bun, dotfiles]
 
 - name: Write PATH environment
   ansible.builtin.copy:

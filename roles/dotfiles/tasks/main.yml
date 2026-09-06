@@ -20,27 +20,6 @@
     mode: '0644'
   tags: [ghostty]
 
-- name: Report the latest OMP installation in check mode
-  ansible.builtin.debug:
-    msg: "Would install {{ dotfiles_omp_package }}@latest."
-  when: ansible_check_mode
-  changed_when: true
-  tags: [omp]
-
-- name: Install the latest OMP version with Bun
-  ansible.builtin.command:
-    argv:
-      - "{{ dotfiles_bun_executable }}"
-      - install
-      - --global
-      - "{{ dotfiles_omp_package }}@latest"
-  environment:
-    BUN_INSTALL: "{{ ansible_facts.env.HOME }}/.bun"
-    PATH: "/usr/bin:{{ ansible_facts.env.HOME }}/.bun/bin:{{ ansible_facts.env.PATH }}"
-  when: not ansible_check_mode
-  changed_when: true
-  tags: [omp]
-
 - name: Install agent skills
   ansible.builtin.command:
     argv:
@@ -57,42 +36,7 @@
   loop: "{{ dotfiles_agent_skills }}"
   loop_control:
     label: "{{ item.name }}"
-  tags: [omp, codex, antigravity, skills]
-
-- name: Create OMP agent config directory
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.omp/agent"
-    state: directory
-    mode: '0700'
-  tags: [omp]
-
-- name: Deploy OMP agent config
-  ansible.builtin.copy:
-    src: omp/agent/config.yml
-    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/config.yml"
-    mode: '0600'
-  tags: [omp]
-
-- name: Deploy OMP append system
-  ansible.builtin.copy:
-    src: omp/agent/APPEND_SYSTEM.md
-    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/APPEND_SYSTEM.md"
-    mode: '0644'
-  tags: [omp]
-
-- name: Deploy OMP MCP config
-  ansible.builtin.copy:
-    src: omp/agent/mcp.json
-    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/mcp.json"
-    mode: '0600'
-  tags: [omp]
-
-- name: Deploy OMP LSP config
-  ansible.builtin.copy:
-    src: omp/agent/lsp.json
-    dest: "{{ ansible_facts.env.HOME }}/.omp/agent/lsp.json"
-    mode: '0644'
-  tags: [omp]
+  tags: [codex, antigravity, skills]
 
 - name: Create Codex config directory
   ansible.builtin.file:
@@ -143,4 +87,3 @@
     dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/settings.json"
     mode: '0600'
   tags: [antigravity, gemini]
-
