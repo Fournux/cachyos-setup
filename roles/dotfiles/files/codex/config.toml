@@ -15,9 +15,5 @@ status_line_use_colors = true
 command = "codebase-memory-mcp"
 args = []
 
-[mcp_servers.context-mode]
-command = "npx"
-args = ["-y", "context-mode"]
-
 [mcp_servers.context7]
 url = "https://mcp.context7.com/mcp"
