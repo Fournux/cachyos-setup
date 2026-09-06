@@ -19,6 +19,7 @@ packages_pacman_packages:
   - rustup
   - openai-codex
   - github-cli
+  - wl-clipboard
   - npm
   - godot
   - qbittorrent
@@ -42,6 +43,7 @@ packages_aur_packages:
   - papirus-icon-theme-git
   - opera
   - antigravity-cli
+  - codebase-memory-mcp-bin
 
 packages_flatpak_packages_required:
   - flatpak

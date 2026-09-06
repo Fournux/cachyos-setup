@@ -21,5 +21,10 @@
       "command(shutdown)",
       "command(reboot)"
     ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.gemini/antigravity-cli/statusline.sh",
+    "enabled": true
   }
 }

@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Read agent state payload from stdin
+payload="$(cat)"
+[ -z "$payload" ] && exit 0
+
+# ANSI colors (matching OMP aesthetic)
+C_RESET="\033[0m"
+C_SEP="\033[38;5;239m"        # Dim dark grey for chevrons
+C_MODEL="\033[38;5;81m"       # Vibrant cyan for model name
+C_DOT="\033[38;5;244m"         # Subtle grey for middle dot
+C_EFFORT="\033[38;5;75m"       # Soft light blue for thinking mode
+C_FOLDER="\033[38;5;253m"      # Crisp white for directory
+C_GIT="\033[38;5;48m"          # Bright green for git branch
+C_CTX="\033[38;5;250m"         # Clean light grey for context %
+C_LINE="\033[38;5;238m"        # Dim trailing rule
+
+# Powerline-thin chevron separator
+SEP=" ${C_SEP}›${C_RESET} "
+
+# Parse payload values line by line
+mapfile -t fields < <(jq -r '
+  def fmt_total(n):
+    if n >= 1000000 then ((n / 1000000 | floor | tostring) + "M")
+    elif n >= 1000 then ((n / 1000 | floor | tostring) + "k")
+    else (n | tostring) end;
+
+  def fmt_pct(p):
+    (p * 10 | round / 10 | tostring) as $s |
+    if ($s | contains(".")) then $s else $s + ".0" end;
+
+  # Extract model name and effort from display_name or id
+  (.model.display_name // .model.id // "Agent") as $raw_model |
+  (if ($raw_model | test("\\((High|Low|Medium|high|low|medium)\\)$")) then
+    {
+      name: ($raw_model | sub(" \\((High|Low|Medium|high|low|medium)\\)$"; "")),
+      effort: ($raw_model | capture("\\((?<e>High|Low|Medium|high|low|medium)\\)$").e | ascii_downcase)
+    }
+  else
+    {
+      name: ($raw_model | split(":")[0]),
+      effort: (.effort // (.model.id // "" | split(":")[1]) // "")
+    }
+  end) as $m |
+
+  $m.name,
+  $m.effort,
+  (.workspace.project_dir // .cwd // ""),
+  (.vcs.branch // .branch // .workspace.branch // ""),
+  fmt_pct(.context_window.used_percentage // 0),
+  fmt_total(.context_window.context_window_size // 1048576)
+' <<< "$payload" 2>/dev/null || true)
+
+model="${fields[0]:-Agent}"
+effort="${fields[1]:-}"
+dir="${fields[2]:-}"
+vcs_branch="${fields[3]:-}"
+pct="${fields[4]:-0.0}"
+total_size="${fields[5]:-1M}"
+
+# Current directory name
+dir_name="${dir##*/}"
+[ -z "$dir_name" ] && dir_name="workspace"
+
+# Git branch (use payload or probe git repository directly)
+branch="$vcs_branch"
+if [ -z "$branch" ] && [ -n "$dir" ] && [ -d "$dir" ]; then
+  branch="$(git -C "$dir" branch --show-current 2>/dev/null || git -C "$dir" rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+fi
+
+# Build statusline segments
+out=""
+
+# 1. Model + Thinking mode
+out+="${C_MODEL} ${model}${C_RESET}"
+if [ -n "$effort" ] && [ "$effort" != "null" ]; then
+  out+="${C_DOT} · ${C_EFFORT} ${effort}${C_RESET}"
+fi
+
+# 2. Current directory
+out+="${SEP}${C_FOLDER} ${dir_name}${C_RESET}"
+
+# 3. Git branch (if inside a git repository)
+if [ -n "$branch" ] && [ "$branch" != "HEAD" ]; then
+  out+="${SEP}${C_GIT} ${branch}${C_RESET}"
+fi
+
+# 4. Context usage (% / total)
+out+="${SEP}${C_CTX}󰍛 ${pct}%/${total_size}${C_RESET}"
+
+# 5. Trailing rule
+out+=" ${C_LINE}──────${C_RESET}"
+
+echo -e "$out"

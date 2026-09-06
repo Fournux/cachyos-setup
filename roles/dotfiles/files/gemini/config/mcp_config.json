@@ -1,5 +1,10 @@
 {
   "mcpServers": {
+    "codebase-memory": {
+      "args": [],
+      "command": "codebase-memory-mcp",
+      "disabled": false
+    },
     "context-mode": {
       "args": [
         "-y",
