@@ -9,8 +9,10 @@ payload="$(cat)"
 C_RESET="\033[0m"
 C_SEP="\033[38;5;239m"        # Dim dark grey for chevrons
 C_MODEL="\033[38;5;81m"       # Vibrant cyan for model name
-C_DOT="\033[38;5;244m"         # Subtle grey for middle dot
-C_EFFORT="\033[38;5;75m"       # Soft light blue for thinking mode
+C_DOT="\033[38;5;244m"                      # Subtle grey for middle dot
+C_EFFORT_LOW="\033[38;2;35;209;139m"         # Official emerald green (#23d18b) for low
+C_EFFORT_MED="\033[38;2;229;229;16m"         # Official yellow (#e5e510) for medium
+C_EFFORT_HIGH="\033[38;2;215;89;89m"         # Official coral red (#d75959) for high
 C_FOLDER="\033[38;5;253m"      # Crisp white for directory
 C_GIT="\033[38;5;48m"          # Bright green for git branch
 C_CTX="\033[38;5;250m"         # Clean light grey for context %
@@ -77,7 +79,23 @@ out=""
 # 1. Model + Thinking mode
 out+="${C_MODEL} ${model}${C_RESET}"
 if [ -n "$effort" ] && [ "$effort" != "null" ]; then
-  out+="${C_DOT} · ${C_EFFORT} ${effort}${C_RESET}"
+  effort_icon="●"
+  effort_color="$C_EFFORT_HIGH"
+  case "$effort" in
+    low)
+      effort_icon="◔"
+      effort_color="$C_EFFORT_LOW"
+      ;;
+    medium)
+      effort_icon="◐"
+      effort_color="$C_EFFORT_MED"
+      ;;
+    high)
+      effort_icon="●"
+      effort_color="$C_EFFORT_HIGH"
+      ;;
+  esac
+  out+="${C_DOT} · ${effort_color}${effort_icon} ${effort}${C_RESET}"
 fi
 
 # 2. Current directory
