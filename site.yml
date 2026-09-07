@@ -81,6 +81,3 @@
       tags: [gwtoolbox, gaming]
     - role: dotfiles
       tags: [dotfiles]
-    - role: paseo
-      when: machine_profile == 'desktop'
-      tags: [paseo]

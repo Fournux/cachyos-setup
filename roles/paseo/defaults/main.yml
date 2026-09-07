@@ -1,7 +1,0 @@
----
-paseo_aur_packages:
-  - paseo-cli
-
-paseo_manage_ufw: true
-paseo_allowed_networks:
-  - 192.168.1.0/24

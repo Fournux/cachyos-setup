@@ -42,7 +42,7 @@ between them.
 
 | Profile   | Hostname          | Additional configuration                                                                                                                |
 | --------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux), the [**Jellyfin**](https://github.com/jellyfin/jellyfin) media server, and [**Paseo**](https://app.paseo.sh) |
+| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux) and the [**Jellyfin**](https://github.com/jellyfin/jellyfin) media server |
 | `laptop`  | `cachyos-laptop`  | `asusctl`, `supergfxctl`, `rog-control-center`, and `solaar`; `supergfxd` is enabled and started                                        |
 
 ## GNOME extensions

@@ -1,6 +1,0 @@
----
-- name: Reload and restart paseo
-  ansible.builtin.systemd_service:
-    name: paseo
-    scope: user
-    state: restarted
