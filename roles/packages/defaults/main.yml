@@ -43,7 +43,7 @@ packages_aur_packages:
   - papirus-icon-theme-git
   - opera
   - antigravity-cli
-  - codebase-memory-mcp-bin
+  - mcpls
 
 packages_flatpak_packages_required:
   - flatpak

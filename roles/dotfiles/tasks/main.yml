@@ -1,96 +1,12 @@
 ---
-- name: Install Ghostty
-  become: true
-  community.general.pacman:
-    name: "{{ dotfiles_ghostty_packages }}"
-    state: present
-  tags: [ghostty]
+- name: Configure Ghostty
+  ansible.builtin.import_tasks: ghostty.yml
 
-- name: Create Ghostty config directory
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.config/ghostty"
-    state: directory
-    mode: '0755'
-  tags: [ghostty]
+- name: Configure shared agent tools
+  ansible.builtin.import_tasks: agents.yml
 
-- name: Deploy Ghostty config
-  ansible.builtin.copy:
-    src: ghostty/config.ghostty
-    dest: "{{ ansible_facts.env.HOME }}/.config/ghostty/config.ghostty"
-    mode: '0644'
-  tags: [ghostty]
+- name: Configure Codex
+  ansible.builtin.import_tasks: codex.yml
 
-- name: Install agent skills
-  ansible.builtin.command:
-    argv:
-      - "{{ dotfiles_bun_executable }}"
-      - x
-      - skills
-      - add
-      - "{{ item.repository }}"
-      - --skill
-      - "{{ item.name }}"
-      - --global
-      - --yes
-    creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
-  loop: "{{ dotfiles_agent_skills }}"
-  loop_control:
-    label: "{{ item.name }}"
-  tags: [codex, antigravity, skills]
-
-- name: Create Codex config directory
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.codex"
-    state: directory
-    mode: '0700'
-  tags: [codex]
-
-- name: Deploy Codex config
-  ansible.builtin.copy:
-    src: codex/config.toml
-    dest: "{{ ansible_facts.env.HOME }}/.codex/config.toml"
-    mode: '0600'
-  tags: [codex]
-
-- name: Create Antigravity config directory
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.gemini/config"
-    state: directory
-    mode: '0700'
-  tags: [antigravity, gemini, skills]
-
-- name: Link agent skills to Antigravity global skills
-  ansible.builtin.file:
-    src: "{{ ansible_facts.env.HOME }}/.agents/skills"
-    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/skills"
-    state: link
-    force: true
-  tags: [antigravity, gemini, skills]
-
-- name: Deploy Antigravity MCP config
-  ansible.builtin.copy:
-    src: gemini/config/mcp_config.json
-    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/mcp_config.json"
-    mode: '0600'
-  tags: [antigravity, gemini]
-
-- name: Create Antigravity CLI directory
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli"
-    state: directory
-    mode: '0700'
-  tags: [antigravity, gemini]
-
-- name: Deploy Antigravity CLI settings
-  ansible.builtin.copy:
-    src: gemini/antigravity-cli/settings.json
-    dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/settings.json"
-    mode: '0600'
-  tags: [antigravity, gemini]
-
-- name: Deploy Antigravity CLI statusline script
-  ansible.builtin.copy:
-    src: gemini/antigravity-cli/statusline.sh
-    dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/statusline.sh"
-    mode: '0755'
-  tags: [antigravity, gemini]
+- name: Configure Antigravity
+  ansible.builtin.import_tasks: antigravity.yml

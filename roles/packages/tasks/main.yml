@@ -5,6 +5,16 @@
     name: "{{ packages_pacman_packages }}"
     state: present
 
+- name: Configure rustup default toolchain
+  ansible.builtin.command:
+    argv:
+      - rustup
+      - default
+      - stable
+  register: packages_rustup_default
+  changed_when: "'unchanged' not in packages_rustup_default.stdout"
+  tags: [codex, antigravity]
+
 - name: Install AUR packages
   ansible.builtin.include_role:
     name: aur_package

@@ -16,3 +16,6 @@ dotfiles_agent_skills:
     name: caveman
   - repository: leonardomso/rust-skills
     name: rust-skills
+
+dotfiles_context7_api_key: "{{ context7_api_key | default('') }}"
+dotfiles_dotnet_executable: "{{ ansible_facts.env.HOME }}/.dotnet/dotnet"

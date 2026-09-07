@@ -1,0 +1,92 @@
+---
+- name: Install agent skills
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_bun_executable }}"
+      - x
+      - skills
+      - add
+      - "{{ item.repository }}"
+      - --skill
+      - "{{ item.name }}"
+      - --global
+      - --yes
+    creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
+  loop: "{{ dotfiles_agent_skills }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [codex, antigravity, skills]
+
+- name: Add rust-analyzer component
+  ansible.builtin.command:
+    argv:
+      - rustup
+      - component
+      - add
+      - rust-analyzer
+  register: dotfiles_rustup_component
+  changed_when: "'up to date' not in dotfiles_rustup_component.stdout"
+  tags: [codex, antigravity]
+
+- name: Initialize mcpls default configuration
+  ansible.builtin.command:
+    argv:
+      - timeout
+      - "1"
+      - /usr/bin/mcpls
+    creates: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
+  failed_when: false
+  tags: [codex, antigravity]
+
+- name: Configure Roslyn LSP server in mcpls
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: ROSLYN LSP"
+    create: true
+    mode: '0644'
+    block: "{{ lookup('ansible.builtin.template', 'mcpls/roslyn.toml.j2') }}"
+  tags: [codex, antigravity]
+
+- name: Install Roslyn language server via dotnet tool
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_dotnet_executable }}"
+      - tool
+      - install
+      - --global
+      - roslyn-language-server
+      - --prerelease
+  environment:
+    DOTNET_ROOT: "{{ ansible_facts.env.HOME }}/.dotnet"
+  register: dotfiles_roslyn_install
+  changed_when: "'was successfully installed' in dotfiles_roslyn_install.stdout"
+  failed_when:
+    - dotfiles_roslyn_install.rc != 0
+    - "'is already installed' not in dotfiles_roslyn_install.stdout"
+  tags: [codex, antigravity]
+
+
+- name: Configure Ansible LSP server in mcpls
+  ansible.builtin.blockinfile:
+    path: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK: ANSIBLE LSP"
+    create: true
+    mode: '0644'
+    block: "{{ lookup('ansible.builtin.template', 'mcpls/ansible.toml.j2') }}"
+  tags: [codex, antigravity]
+
+- name: Install context-mode npm package
+  become: true
+  community.general.npm:
+    name: context-mode
+    global: true
+    state: present
+  tags: [codex, antigravity]
+
+- name: Install ansible-language-server npm package
+  become: true
+  community.general.npm:
+    name: "@ansible/ansible-language-server"
+    global: true
+    state: present
+  tags: [codex, antigravity]

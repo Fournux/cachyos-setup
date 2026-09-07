@@ -29,6 +29,7 @@
     mode: '0644'
   vars:
     environment_path_entries:
+      - $HOME/.cargo/bin
       - $HOME/.bun/bin
       - $HOME/.local/bin
       - $HOME/bin

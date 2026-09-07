@@ -1,0 +1,91 @@
+---
+- name: Create Antigravity config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.gemini/config"
+    state: directory
+    mode: '0700'
+  tags: [antigravity, gemini, skills]
+
+- name: Link agent skills to Antigravity global skills
+  ansible.builtin.file:
+    src: "{{ ansible_facts.env.HOME }}/.agents/skills"
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/skills"
+    state: link
+    force: true
+  tags: [antigravity, gemini, skills]
+
+- name: Deploy Antigravity MCP config
+  ansible.builtin.template:
+    src: gemini/config/mcp_config.json.j2
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/mcp_config.json"
+    mode: '0600'
+  no_log: true
+  tags: [antigravity, gemini]
+
+- name: Deploy Antigravity global instructions
+  ansible.builtin.copy:
+    src: agents/AGENTS.md
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/config/AGENTS.md"
+    mode: '0600'
+  tags: [antigravity, gemini]
+
+- name: Create Antigravity CLI directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli"
+    state: directory
+    mode: '0700'
+  tags: [antigravity, gemini]
+
+- name: Deploy Antigravity CLI settings
+  ansible.builtin.copy:
+    src: gemini/antigravity-cli/settings.json
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/settings.json"
+    mode: '0600'
+  tags: [antigravity, gemini]
+
+- name: Deploy Antigravity CLI statusline script
+  ansible.builtin.copy:
+    src: gemini/antigravity-cli/statusline.sh
+    dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/statusline.sh"
+    mode: '0755'
+  tags: [antigravity, gemini]
+
+- name: Install context-mode plugin in Antigravity CLI
+  ansible.builtin.command:
+    argv:
+      - agy
+      - plugin
+      - install
+      - https://github.com/mksglu/context-mode/tree/main/configs/antigravity-cli
+    creates: "{{ ansible_facts.env.HOME }}/.gemini/config/plugins/context-mode/plugin.json"
+  register: dotfiles_context_mode_plugin_install
+  tags: [antigravity, gemini]
+
+# Temporary workaround: context-mode 1.0.169 groups Stop handlers, but agy requires a flat list.
+# Upstream source: https://github.com/mksglu/context-mode/blob/main/configs/antigravity-cli/hooks.json
+# agy contract: ~/.gemini/antigravity-cli/builtin/skills/agy-customizations/docs/hooks.md (Hook Events).
+# Remove this block once upstream ships the correct format; already-flat handlers are left untouched.
+- name: Fix context-mode Stop hook format for Antigravity CLI
+  # In check mode on a fresh install, the plugin files have not been created yet.
+  when: not (ansible_check_mode and dotfiles_context_mode_plugin_install is changed)
+  tags: [antigravity, gemini]
+  block:
+    - name: Read installed context-mode hooks
+      ansible.builtin.slurp:
+        src: "{{ ansible_facts.env.HOME }}/.gemini/config/plugins/context-mode/hooks.json"
+      register: dotfiles_context_mode_hooks_file
+
+    - name: Flatten the grouped context-mode Stop handler
+      ansible.builtin.copy:
+        content: >-
+          {{ dotfiles_context_mode_hooks
+             | combine({'hooks': {'Stop': dotfiles_context_mode_hooks.hooks.Stop[0].hooks}}, recursive=true)
+             | to_nice_json }}
+        dest: "{{ ansible_facts.env.HOME }}/.gemini/config/plugins/context-mode/hooks.json"
+        mode: '0644'
+      vars:
+        dotfiles_context_mode_hooks: "{{ dotfiles_context_mode_hooks_file.content | b64decode | from_json }}"
+      when:
+        - dotfiles_context_mode_hooks.hooks.Stop is defined
+        - dotfiles_context_mode_hooks.hooks.Stop | length == 1
+        - dotfiles_context_mode_hooks.hooks.Stop[0].hooks is defined

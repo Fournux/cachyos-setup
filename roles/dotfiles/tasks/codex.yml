@@ -1,0 +1,43 @@
+---
+- name: Create Codex config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.codex"
+    state: directory
+    mode: '0700'
+  tags: [codex]
+
+- name: Deploy Codex config
+  ansible.builtin.template:
+    src: codex/config.toml.j2
+    dest: "{{ ansible_facts.env.HOME }}/.codex/config.toml"
+    mode: '0600'
+  no_log: true
+  tags: [codex]
+
+- name: Deploy Codex global instructions
+  ansible.builtin.copy:
+    src: agents/AGENTS.md
+    dest: "{{ ansible_facts.env.HOME }}/.codex/AGENTS.md"
+    mode: '0600'
+  tags: [codex]
+
+- name: Add context-mode marketplace in Codex
+  ansible.builtin.command:
+    argv:
+      - codex
+      - plugin
+      - marketplace
+      - add
+      - mksglu/context-mode
+    creates: "{{ ansible_facts.env.HOME }}/.codex/.tmp/marketplaces/context-mode"
+  tags: [codex]
+
+- name: Install context-mode plugin in Codex
+  ansible.builtin.command:
+    argv:
+      - codex
+      - plugin
+      - add
+      - context-mode@context-mode
+    creates: "{{ ansible_facts.env.HOME }}/.codex/plugins/cache/context-mode"
+  tags: [codex]

@@ -1,0 +1,35 @@
+model = "gpt-6-astra"
+model_reasoning_effort = "high"
+
+[tui]
+status_line = [
+  "model-with-reasoning",
+  "current-dir",
+  "git-branch",
+  "context-used",
+  "context-window-size",
+]
+status_line_use_colors = true
+
+[features]
+plugin_hooks = true
+hooks = true
+
+[mcp_servers.mcpls]
+command = "mcpls"
+args = []
+
+[mcp_servers.context7]
+url = "https://mcp.context7.com/mcp"
+{% if dotfiles_context7_api_key is defined and dotfiles_context7_api_key | length > 0 %}
+
+[mcp_servers.context7.http_headers]
+Authorization = "Bearer {{ dotfiles_context7_api_key }}"
+{% endif %}
+
+[marketplaces.context-mode]
+source_type = "git"
+source = "https://github.com/mksglu/context-mode.git"
+
+[plugins."context-mode@context-mode"]
+enabled = true
