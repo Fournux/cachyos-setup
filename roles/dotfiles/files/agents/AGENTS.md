@@ -17,20 +17,27 @@ it is available and supports the task; use native tools for small, direct operat
 
 ## serena: semantic navigation and edits
 
-- Locate symbols with `find_symbol` and inspect file or directory structure with
-  `get_symbols_overview`. Use `find_symbol` with `include_body=True` or
-  `find_declaration` to inspect declarations and bodies. Use `find_implementations`
-  when concrete implementations matter.
-- Before deleting a symbol or changing a contract or behavior that affects callers,
-  audit callers and call relationships with `find_referencing_symbols`.
-  LSP results may omit dynamic usages and unsupported files. Supplement them with
-  `search_for_pattern` or targeted `rg` for text, config keys, and paths.
-- For symbol renames and structured modifications, prefer `rename_symbol`,
-  `replace_symbol_body`, `insert_after_symbol`, or `insert_before_symbol`.
-  Verify the resulting diff; a successful tool response does not prove files changed.
-- After a coherent set of edits, check for regressions using `get_diagnostics_for_file`.
-  Distinguish new errors from existing ones and run the relevant compiler, linter,
-  or tests before reporting completion.
+- **Mandatory on LSP-enabled codebases** (Python, Rust, Go, TS/JS, etc.): Always query Serena BEFORE falling back to broad file reading (`view_file`). Never dump whole source files when exploring or modifying symbols.
+- **Symbol Exploration**:
+  - Inspect file or module structure with `get_symbols_overview`.
+  - Locate targets with `find_symbol` (use `include_body=False` to inspect structure/signatures, `include_body=True` only for the target body).
+  - Use `find_declaration` and `find_implementations` to trace definitions and implementations.
+- **Impact Analysis & Safe Refactoring**:
+  - Before modifying contracts or deleting code, audit callers with `find_referencing_symbols`. Supplement with `search_for_pattern` or `rg` for dynamic usages and config references.
+  - Prefer `rename_symbol` to rename symbols atomically across definitions and references.
+  - Prefer `safe_delete_symbol` to delete unused symbols safely (verifies absence of references).
+- **Symbolic Editing vs. File Editing**:
+  - Prefer `replace_symbol_body` when replacing an entire function, method, or class.
+  - Use `insert_before_symbol` or `insert_after_symbol` to inject new top-level declarations or methods.
+  - For repeated edits across multiple files, prefer `replace_in_files` (always with `dry_run=True` first).
+  - Use `replace_content` (Serena) or native line-replacement tools (`replace_file_content` in agy, `apply_patch` in Codex) for small, localized tweaks inside a body or in non-symbolic files.
+- **Diagnostics & Quality**:
+  - After code modifications, check for regressions using `get_diagnostics_for_file` before running project linters, compilers, or tests.
+- **Project Memories**:
+  - Consult `list_memories` and `read_memory` for project context and architecture decisions.
+  - Store durable patterns, gotchas, or workspace conventions with `write_memory`.
+- **Non-LSP Boundary**:
+  - For plain text, config files (YAML, TOML, JSON), shell scripts, and templates lacking structured LSP symbols, use targeted native tools (`grep_search`, `rg`, native file editing).
 
 ## Context efficiency
 
@@ -53,8 +60,8 @@ Minimize unnecessary context usage while preserving enough evidence for correct 
   verification is necessary. Batch independent lookups; keep dependent steps sequential.
 - Expand retrieved context progressively when current evidence is insufficient.
   Read a larger coherent section when it avoids repeated fragmented reads or guesses.
-- Use native editing tools for persistent changes, such as `apply_patch` in Codex
-  or `replace_file_content` in agy.
+- For small localized edits or in files without active LSP support, use native editing
+  tools such as `apply_patch` in Codex or `replace_file_content` in agy.
 
 ## Context7: dependency documentation
 
