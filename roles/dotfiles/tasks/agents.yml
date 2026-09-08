@@ -28,23 +28,28 @@
   changed_when: "'up to date' not in dotfiles_rustup_component.stdout"
   tags: [codex, antigravity]
 
-- name: Initialize mcpls default configuration
+- name: Install Serena via uv tool
   ansible.builtin.command:
     argv:
-      - timeout
-      - "1"
-      - /usr/bin/mcpls
-    creates: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
-  failed_when: false
+      - "{{ dotfiles_uv_executable }}"
+      - tool
+      - install
+      - serena-agent
+    creates: "{{ ansible_facts.env.HOME }}/.local/bin/serena"
   tags: [codex, antigravity]
 
-- name: Configure Roslyn LSP server in mcpls
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK: ROSLYN LSP"
-    create: true
+- name: Ensure Serena configuration directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.serena"
+    state: directory
+    mode: '0755'
+  tags: [codex, antigravity]
+
+- name: Deploy Serena configuration
+  ansible.builtin.template:
+    src: serena/serena_config.yml.j2
+    dest: "{{ ansible_facts.env.HOME }}/.serena/serena_config.yml"
     mode: '0644'
-    block: "{{ lookup('ansible.builtin.template', 'mcpls/roslyn.toml.j2') }}"
   tags: [codex, antigravity]
 
 - name: Install Roslyn language server via dotnet tool
@@ -63,24 +68,6 @@
   failed_when:
     - dotfiles_roslyn_install.rc != 0
     - "'is already installed' not in dotfiles_roslyn_install.stdout"
-  tags: [codex, antigravity]
-
-
-- name: Configure Ansible LSP server in mcpls
-  ansible.builtin.blockinfile:
-    path: "{{ ansible_facts.env.HOME }}/.config/mcpls/mcpls.toml"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK: ANSIBLE LSP"
-    create: true
-    mode: '0644'
-    block: "{{ lookup('ansible.builtin.template', 'mcpls/ansible.toml.j2') }}"
-  tags: [codex, antigravity]
-
-- name: Install context-mode npm package
-  become: true
-  community.general.npm:
-    name: context-mode
-    global: true
-    state: present
   tags: [codex, antigravity]
 
 - name: Install ansible-language-server npm package

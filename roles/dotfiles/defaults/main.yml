@@ -19,3 +19,4 @@ dotfiles_agent_skills:
 
 dotfiles_context7_api_key: "{{ context7_api_key | default('') }}"
 dotfiles_dotnet_executable: "{{ ansible_facts.env.HOME }}/.dotnet/dotnet"
+dotfiles_uv_executable: uv

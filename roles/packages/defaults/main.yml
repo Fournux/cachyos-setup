@@ -21,6 +21,7 @@ packages_pacman_packages:
   - github-cli
   - wl-clipboard
   - npm
+  - uv
   - godot
   - qbittorrent
   - ttf-roboto-mono
@@ -43,7 +44,6 @@ packages_aur_packages:
   - papirus-icon-theme-git
   - opera
   - antigravity-cli
-  - mcpls
 
 packages_flatpak_packages_required:
   - flatpak

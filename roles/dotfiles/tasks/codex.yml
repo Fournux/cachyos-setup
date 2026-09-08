@@ -20,24 +20,3 @@
     dest: "{{ ansible_facts.env.HOME }}/.codex/AGENTS.md"
     mode: '0600'
   tags: [codex]
-
-- name: Add context-mode marketplace in Codex
-  ansible.builtin.command:
-    argv:
-      - codex
-      - plugin
-      - marketplace
-      - add
-      - mksglu/context-mode
-    creates: "{{ ansible_facts.env.HOME }}/.codex/.tmp/marketplaces/context-mode"
-  tags: [codex]
-
-- name: Install context-mode plugin in Codex
-  ansible.builtin.command:
-    argv:
-      - codex
-      - plugin
-      - add
-      - context-mode@context-mode
-    creates: "{{ ansible_facts.env.HOME }}/.codex/plugins/cache/context-mode"
-  tags: [codex]

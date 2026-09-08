@@ -16,8 +16,6 @@ C_EFFORT_HIGH="\033[38;2;215;89;89m"         # Official coral red (#d75959) for 
 C_FOLDER="\033[38;5;253m"      # Crisp white for directory
 C_GIT="\033[38;5;48m"          # Bright green for git branch
 C_CTX="\033[38;5;250m"         # Clean light grey for context %
-C_CTXMODE="\033[38;5;43m"      # Soft cyan-mint for context-mode
-C_ERR="\033[38;5;203m"          # Vibrant coral red for error / disabled
 C_LINE="\033[38;5;238m"        # Dim trailing rule
 
 # Powerline-thin chevron separator
@@ -109,42 +107,7 @@ fi
 # 4. Context usage (% / total)
 out+="${SEP}${C_CTX}󰍛 ${pct}%/${total_size}${C_RESET}"
 
-# 5. Context-mode savings / status
-ctx_stats_file=""
-agy_pid=""
-cur=$$
-for _ in 1 2 3 4 5; do
-  [ -z "$cur" ] || [ "$cur" -le 1 ] && break
-  cur="$(awk '{print $4}' "/proc/$cur/stat" 2>/dev/null || true)"
-  if [ -n "$cur" ] && grep -qi "agy" "/proc/$cur/comm" 2>/dev/null; then
-    agy_pid="$cur"
-    break
-  fi
-done
-
-if ! command -v context-mode >/dev/null 2>&1 || [ ! -f "$HOME/.gemini/config/plugins/context-mode/mcp_config.json" ]; then
-  out+="${SEP}${C_ERR}󰘳 ctx: off${C_RESET}"
-else
-  if [ -n "$agy_pid" ] && [ -f "$HOME/.gemini/context-mode/sessions/stats-pid-${agy_pid}.json" ]; then
-    ctx_stats_file="$HOME/.gemini/context-mode/sessions/stats-pid-${agy_pid}.json"
-  fi
-
-  if [ -n "$ctx_stats_file" ] && [ -f "$ctx_stats_file" ]; then
-    ctx_pct="$(jq -r '.reduction_pct // 0' "$ctx_stats_file" 2>/dev/null || echo "err")"
-    if [ "$ctx_pct" = "err" ]; then
-      out+="${SEP}${C_ERR}󰘳 ctx: error${C_RESET}"
-    elif [ "$ctx_pct" -gt 0 ] 2>/dev/null; then
-      out+="${SEP}${C_CTXMODE}󰘳 ctx: ${ctx_pct}% saved${C_RESET}"
-    else
-      out+="${SEP}${C_CTXMODE}󰘳 ctx: active${C_RESET}"
-    fi
-  else
-    # Without stats tied to this process, do not report another session's savings.
-    out+="${SEP}${C_CTXMODE}󰘳 ctx: ready${C_RESET}"
-  fi
-fi
-
-# 6. Trailing rule
+# 5. Trailing rule
 out+=" ${C_LINE}──────${C_RESET}"
 
 echo -e "$out"
