@@ -51,29 +51,3 @@
     dest: "{{ ansible_facts.env.HOME }}/.serena/serena_config.yml"
     mode: '0644'
   tags: [codex, antigravity]
-
-- name: Install Roslyn language server via dotnet tool
-  ansible.builtin.command:
-    argv:
-      - "{{ dotfiles_dotnet_executable }}"
-      - tool
-      - install
-      - --global
-      - roslyn-language-server
-      - --prerelease
-  environment:
-    DOTNET_ROOT: "{{ ansible_facts.env.HOME }}/.dotnet"
-  register: dotfiles_roslyn_install
-  changed_when: "'was successfully installed' in dotfiles_roslyn_install.stdout"
-  failed_when:
-    - dotfiles_roslyn_install.rc != 0
-    - "'is already installed' not in dotfiles_roslyn_install.stdout"
-  tags: [codex, antigravity]
-
-- name: Install ansible-language-server npm package
-  become: true
-  community.general.npm:
-    name: "@ansible/ansible-language-server"
-    global: true
-    state: present
-  tags: [codex, antigravity]
