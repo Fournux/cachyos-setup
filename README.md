@@ -25,7 +25,6 @@
 | DNS provider           | [**NextDNS**](https://nextdns.io/) via [**systemd-resolved**](https://github.com/systemd/systemd) — routes all system DNS queries over DNS-over-TLS with DNSSEC validation                                 |
 | Audio player           | [**Gapless**](https://gitlab.gnome.org/neithern/g4music)                                                                                                                                                   |
 | Video player           | [**mpv**](https://github.com/mpv-player/mpv) — custom [**MVUtensils**](https://github.com/myrsloik/mvutensils) motion interpolation for TV-style motion smoothing, toggled with `Shift+I`                  |
-| Media server           | [**Jellyfin**](https://github.com/jellyfin/jellyfin) — hardware-accelerated decoding on the AMD GPU                                                                                                        |
 | Web browser            | [**Firefox**](https://github.com/mozilla-firefox/firefox)                                                                                                                                                  |
 | Code editor            | [**Visual Studio Code**](https://github.com/microsoft/vscode)                                                                                                                                              |
 | AI coding agents       | [**Codex CLI**](https://github.com/openai/codex) and [**Antigravity CLI**](https://antigravity.google)                                                                                                   |
@@ -40,9 +39,9 @@ The shared playbook configures both machines. It then selects one profile from
 the local hostname, so hardware-specific packages and services do not leak
 between them.
 
-| Profile   | Hostname          | Additional configuration                                                                                                                |
-| --------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux) and the [**Jellyfin**](https://github.com/jellyfin/jellyfin) media server |
+| Profile   | Hostname          | Additional configuration                                          |
+| --------- | ----------------- | ----------------------------------------------------------------- |
+| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux)     |
 | `laptop`  | `cachyos-laptop`  | `asusctl`, `supergfxctl`, `rog-control-center`, and `solaar`; `supergfxd` is enabled and started                                        |
 
 ## GNOME extensions
