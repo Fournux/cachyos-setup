@@ -1,6 +1,10 @@
 ---
 packages_pacman_packages:
   - curl
+  - git
+  - ripgrep
+  - fd
+  - jq
   - unzip
   - 7zip
   - gnu-free-fonts
