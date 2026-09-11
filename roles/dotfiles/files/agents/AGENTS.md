@@ -51,6 +51,12 @@ Minimize unnecessary context usage while preserving enough evidence for correct 
 - Avoid large unfiltered command outputs. Filter build logs, test output, JSON,
   logs, diffs, and command results before returning them to the model. Use `rg`,
   `sed`, `jq`, `head`, `tail`, or equivalent tools to keep outputs focused.
+- Programmatic filtering and inspection ("think in code"): When standard tools
+  (`rg`, `jq`, `sed`) fall short for complex data structures, multi-step aggregation,
+  or binary inspection, execute inline Python one-liners (`python3 -c "..."`) or
+  temporary scratch scripts. Let local code process and filter evidence before
+  returning only the minimal pertinent slice to context. Never use scripts to
+  circumvent Serena on LSP-supported codebases.
 - Preserve errors, exit codes, and enough surrounding context to diagnose failures.
   When truncating output, make that explicit; retain full logs in a temporary file
   when further investigation may be needed. Do not infer success from filtered output.
