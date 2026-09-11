@@ -30,3 +30,12 @@ url = "https://mcp.context7.com/mcp"
 [mcp_servers.context7.http_headers]
 Authorization = "Bearer {{ dotfiles_context7_api_key }}"
 {% endif %}
+
+[marketplaces.i-have-adhd]
+source_type = "git"
+source = "https://github.com/ayghri/i-have-adhd.git"
+ref = "main"
+
+[plugins."i-have-adhd@i-have-adhd"]
+enabled = true
+

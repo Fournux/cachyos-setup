@@ -3,6 +3,8 @@ dotfiles_ghostty_packages:
   - ghostty
 
 dotfiles_bun_executable: /usr/bin/bun
+dotfiles_codex_executable: codex
+dotfiles_agy_executable: agy
 dotfiles_agent_skills:
   - repository: DietrichGebert/ponytail
     name: ponytail-review
@@ -12,8 +14,6 @@ dotfiles_agent_skills:
     name: grilling
   - repository: mattpocock/skills
     name: grill-me
-  - repository: juliusbrussee/caveman
-    name: caveman
   - repository: leonardomso/rust-skills
     name: rust-skills
 

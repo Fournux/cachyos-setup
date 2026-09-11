@@ -49,3 +49,13 @@
     dest: "{{ ansible_facts.env.HOME }}/.gemini/antigravity-cli/statusline.sh"
     mode: '0755'
   tags: [antigravity, gemini]
+
+- name: Install i-have-adhd plugin for Antigravity
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_agy_executable }}"
+      - plugin
+      - install
+      - https://github.com/ayghri/i-have-adhd
+    creates: "{{ ansible_facts.env.HOME }}/.gemini/config/plugins/i-have-adhd/plugin.json"
+  tags: [antigravity, gemini, skills]

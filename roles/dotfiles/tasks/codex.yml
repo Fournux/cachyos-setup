@@ -20,3 +20,26 @@
     dest: "{{ ansible_facts.env.HOME }}/.codex/AGENTS.md"
     mode: '0600'
   tags: [codex]
+
+- name: Add i-have-adhd marketplace for Codex
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_codex_executable }}"
+      - plugin
+      - marketplace
+      - add
+      - ayghri/i-have-adhd
+      - --ref
+      - main
+    creates: "{{ ansible_facts.env.HOME }}/.codex/.tmp/marketplaces/i-have-adhd"
+  tags: [codex]
+
+- name: Install i-have-adhd plugin for Codex
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_codex_executable }}"
+      - plugin
+      - add
+      - i-have-adhd@i-have-adhd
+    creates: "{{ ansible_facts.env.HOME }}/.codex/plugins/cache/i-have-adhd"
+  tags: [codex]
