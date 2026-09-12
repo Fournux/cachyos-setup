@@ -5,8 +5,6 @@
 gnome_extensions:
   - uuid: dash-to-panel@jderose9.github.com
     enabled: true
-  - uuid: HeadsetControl@lauinger-clan.de
-    enabled: true
   - uuid: Vitals@CoreCoding.com
     enabled: true
   - uuid: appindicatorsupport@rgcjonas.gmail.com
@@ -18,8 +16,7 @@ gnome_extensions:
   - uuid: smart-home@chlumskyvaclav.gmail.com
     enabled: true
 
-gnome_required_packages:
-  - headsetcontrol
+gnome_required_packages: []
 
 gnome_extension_api_timeout: 15
 gnome_extension_api_retries: 3
