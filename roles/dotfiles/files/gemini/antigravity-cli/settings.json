@@ -1,7 +1,8 @@
 {
   "agentMode": "accept-edits",
   "allowNonWorkspaceAccess": true,
-  "enableTelemetry": false,
+  "model": "Gemini 3.8 Flash (High)",
+  "notifications": true,
   "permissions": {
     "allow": [
       "command(*)",
@@ -22,6 +23,7 @@
       "command(reboot)"
     ]
   },
+  "showFeedbackSurvey": false,
   "statusLine": {
     "type": "command",
     "command": "~/.gemini/antigravity-cli/statusline.sh",
