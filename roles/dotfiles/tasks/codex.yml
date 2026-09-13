@@ -1,4 +1,29 @@
 ---
+- name: Create Codex install directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_codex_install_script_path | dirname }}"
+    state: directory
+    mode: '0755'
+  tags: [codex]
+
+- name: Download the official Codex CLI installer
+  ansible.builtin.get_url:
+    url: "{{ dotfiles_codex_install_script_url }}"
+    dest: "{{ dotfiles_codex_install_script_path }}"
+    mode: '0755'
+    force: false
+  tags: [codex]
+
+- name: Install Codex CLI
+  ansible.builtin.command:
+    argv:
+      - /bin/sh
+      - "{{ dotfiles_codex_install_script_path }}"
+    creates: "{{ dotfiles_codex_executable }}"
+  environment:
+    CODEX_NON_INTERACTIVE: "1"
+  tags: [codex]
+
 - name: Create Codex config directory
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/.codex"

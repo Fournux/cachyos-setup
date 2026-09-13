@@ -3,8 +3,12 @@ dotfiles_ghostty_packages:
   - ghostty
 
 dotfiles_bun_executable: /usr/bin/bun
-dotfiles_codex_executable: codex
-dotfiles_agy_executable: agy
+dotfiles_codex_executable: "{{ ansible_facts.env.HOME }}/.local/bin/codex"
+dotfiles_codex_install_script_url: https://chatgpt.com/codex/install.sh
+dotfiles_codex_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/codex/install.sh"
+dotfiles_agy_executable: "{{ ansible_facts.env.HOME }}/.local/bin/agy"
+dotfiles_agy_install_script_url: https://antigravity.google/cli/install.sh
+dotfiles_agy_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/antigravity/install.sh"
 dotfiles_agent_skills:
   - repository: DietrichGebert/ponytail
     name: ponytail-review
