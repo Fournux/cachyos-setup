@@ -48,7 +48,6 @@ between them.
 ## GNOME extensions
 
 - [**Dash to Panel**](https://github.com/home-sweet-gnome/dash-to-panel) — provides a horizontal taskbar similar to Windows.
-- [**Smart Home**](https://github.com/vchlum/smart-home) — controls my Philips Hue bridge.
 - [**Vitals**](https://github.com/corecoding/Vitals) — displays and monitors system temperatures.
 
 ## Manual assets

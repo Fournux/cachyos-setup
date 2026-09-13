@@ -13,8 +13,6 @@ gnome_extensions:
     enabled: true
   - uuid: just-perfection-desktop@just-perfection
     enabled: true
-  - uuid: smart-home@chlumskyvaclav.gmail.com
-    enabled: true
 
 gnome_required_packages: []
 
