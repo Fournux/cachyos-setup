@@ -2,6 +2,9 @@
 - name: Configure Ghostty
   ansible.builtin.import_tasks: ghostty.yml
 
+- name: Configure Topgrade
+  ansible.builtin.import_tasks: topgrade.yml
+
 - name: Configure shared agent tools
   ansible.builtin.import_tasks: agents.yml
 

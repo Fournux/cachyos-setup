@@ -1,0 +1,16 @@
+---
+- name: Install Topgrade
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages: "{{ dotfiles_topgrade_packages }}"
+  tags: [topgrade]
+
+- name: Deploy Topgrade config
+  ansible.builtin.copy:
+    src: topgrade/topgrade.toml
+    dest: "{{ ansible_facts.env.HOME }}/.config/topgrade.toml"
+    mode: '0644'
+  tags: [topgrade]

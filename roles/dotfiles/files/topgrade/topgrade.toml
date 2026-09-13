@@ -1,0 +1,7 @@
+# Topgrade configuration
+# https://github.com/topgrade-rs/topgrade
+
+[misc]
+# Disable pacdiff (config_update) to prevent overwriting CachyOS configurations
+# with vanilla Arch Linux .pacnew files.
+disable = ["config_update"]

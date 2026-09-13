@@ -2,6 +2,9 @@
 dotfiles_ghostty_packages:
   - ghostty
 
+dotfiles_topgrade_packages:
+  - topgrade
+
 dotfiles_bun_executable: /usr/bin/bun
 dotfiles_codex_executable: "{{ ansible_facts.env.HOME }}/.local/bin/codex"
 dotfiles_codex_install_script_url: https://chatgpt.com/codex/install.sh
