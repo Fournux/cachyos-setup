@@ -1,0 +1,7 @@
+---
+- name: Update desktop database
+  ansible.builtin.command:
+    argv:
+      - update-desktop-database
+      - "{{ ansible_facts.env.HOME }}/.local/share/applications"
+  changed_when: true
