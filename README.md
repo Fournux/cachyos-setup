@@ -27,12 +27,26 @@
 | Video player           | [**mpv**](https://github.com/mpv-player/mpv) — custom [**MVUtensils**](https://github.com/myrsloik/mvutensils) motion interpolation for TV-style motion smoothing, toggled with `Shift+I`                  |
 | Web browser            | [**Firefox**](https://github.com/mozilla-firefox/firefox)                                                                                                                                                  |
 | Code editor            | [**Visual Studio Code**](https://github.com/microsoft/vscode)                                                                                                                                              |
-| AI coding agents       | [**Codex CLI**](https://github.com/openai/codex) and [**Antigravity CLI**](https://antigravity.google)                                                                                                   |
+| AI coding agents       | [**Codex CLI**](https://github.com/openai/codex), [**Claude Code**](https://code.claude.com/docs/en/overview), and [**Antigravity CLI**](https://antigravity.google) |
+| Claude desktop app     | [**claude-desktop**](https://aur.archlinux.org/packages/claude-desktop) (AUR) |
 | Netflix browser        | **Opera** — the only browser that gives me 1080p Netflix playback on Linux                                                                                                                                 |
 | RSS reader             | [**NewsFlash**](https://gitlab.com/news-flash/news_flash_gtk) — for following news from my favorite websites                                                                                               |
 | Proton version manager | [**ProtonPlus**](https://github.com/Vysp3r/ProtonPlus) — manages [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom) and [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos) versions |
 | System upgrades        | [**Topgrade**](https://github.com/topgrade-rs/topgrade) — centralizes upgrades across packages, tools, and runtimes                                                                                        |
 | PDF toolkit            | [**Stirling PDF**](https://github.com/Stirling-Tools/Stirling-PDF)                                                                                                                                         |
+
+Ankama Launcher is installed from the AUR. Its user desktop entry sets
+`SDL_VIDEODRIVER=wayland` so Dofus uses native Wayland, including after package
+updates. Run `./bootstrap.sh run --tags ankama` to apply this role on its own.
+
+## AI coding agents
+
+Codex, Claude Code, and Antigravity share the skills in `~/.agents/skills`, the
+global instructions in `roles/dotfiles/files/agents/AGENTS.md`, Serena, Context7,
+and the `i-have-adhd` plugin. Claude Code uses the native installer with automatic
+updates and signs in with your Claude subscription. Run `claude` after setup to
+sign in. Its `~/.claude/skills` directory links to the shared skills, and Ansible
+preserves existing user state when configuring MCP servers in `~/.claude.json`.
 
 ## Machine profiles
 

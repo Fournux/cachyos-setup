@@ -54,6 +54,8 @@
       tags: [podman, containers]
     - role: mpv
       tags: [mpv]
+    - role: ankama
+      tags: [ankama, dofus, gaming]
     - role: discord
       tags: [discord]
     - role: desktop

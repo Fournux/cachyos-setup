@@ -4,7 +4,7 @@
   community.general.pacman:
     name: "{{ environment_bun_packages }}"
     state: present
-  tags: [bun, dotfiles]
+  tags: [bun, dotfiles, claude]
 
 - name: Create environment.d directory
   ansible.builtin.file:

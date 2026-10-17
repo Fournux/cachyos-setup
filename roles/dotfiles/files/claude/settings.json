@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__serena",
+      "mcp__context7"
+    ],
+    "defaultMode": "acceptEdits"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  },
+  "enabledPlugins": {
+    "i-have-adhd@i-have-adhd": true
+  },
+  "extraKnownMarketplaces": {
+    "i-have-adhd": {
+      "source": {
+        "source": "github",
+        "repo": "ayghri/i-have-adhd"
+      }
+    }
+  },
+  "forceLoginMethod": "claudeai",
+  "alwaysThinkingEnabled": true
+}

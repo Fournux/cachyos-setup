@@ -1,0 +1,120 @@
+---
+- name: Create Claude Code install directory
+  ansible.builtin.file:
+    path: "{{ dotfiles_claude_install_script_path | dirname }}"
+    state: directory
+    mode: '0755'
+  tags: [claude]
+
+- name: Download the official Claude Code installer
+  ansible.builtin.get_url:
+    url: "{{ dotfiles_claude_install_script_url }}"
+    dest: "{{ dotfiles_claude_install_script_path }}"
+    mode: '0755'
+    force: false
+  tags: [claude]
+
+- name: Install Claude Code
+  ansible.builtin.command:
+    argv:
+      - /bin/bash
+      - "{{ dotfiles_claude_install_script_path }}"
+    creates: "{{ dotfiles_claude_executable }}"
+  tags: [claude]
+
+- name: Create Claude Code config directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.claude"
+    state: directory
+    mode: '0700'
+  tags: [claude, skills]
+
+- name: Link agent skills to Claude Code global skills
+  ansible.builtin.file:
+    src: "{{ ansible_facts.env.HOME }}/.agents/skills"
+    dest: "{{ ansible_facts.env.HOME }}/.claude/skills"
+    state: link
+    force: true
+  tags: [claude, skills]
+
+- name: Deploy Claude Code global instructions
+  ansible.builtin.copy:
+    src: agents/AGENTS.md
+    dest: "{{ ansible_facts.env.HOME }}/.claude/CLAUDE.md"
+    mode: '0600'
+  tags: [claude]
+
+- name: Deploy Claude Code settings
+  ansible.builtin.copy:
+    src: claude/settings.json
+    dest: "{{ ansible_facts.env.HOME }}/.claude/settings.json"
+    mode: '0600'
+  tags: [claude]
+
+- name: Deploy Claude Code statusline script
+  ansible.builtin.copy:
+    src: agents/statusline.sh
+    dest: "{{ ansible_facts.env.HOME }}/.claude/statusline.sh"
+    mode: '0755'
+  tags: [claude]
+
+- name: Check for existing Claude Code user config
+  ansible.builtin.stat:
+    path: "{{ ansible_facts.env.HOME }}/.claude.json"
+  register: dotfiles_claude_config_stat
+  tags: [claude]
+
+- name: Read existing Claude Code user config
+  ansible.builtin.slurp:
+    src: "{{ ansible_facts.env.HOME }}/.claude.json"
+  register: dotfiles_claude_config
+  when: dotfiles_claude_config_stat.stat.exists
+  no_log: true
+  tags: [claude]
+
+- name: Deploy Claude Code MCP config preserving user state
+  ansible.builtin.template:
+    src: claude/claude.json.j2
+    dest: "{{ ansible_facts.env.HOME }}/.claude.json"
+    mode: '0600'
+  no_log: true
+  tags: [claude]
+
+- name: Add i-have-adhd marketplace for Claude Code
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_claude_executable }}"
+      - plugin
+      - marketplace
+      - add
+      - ayghri/i-have-adhd
+    creates: "{{ ansible_facts.env.HOME }}/.claude/plugins/marketplaces/i-have-adhd"
+  tags: [claude]
+
+- name: Query installed Claude Code plugins
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_claude_executable }}"
+      - plugin
+      - list
+      - --json
+  register: dotfiles_claude_plugins
+  changed_when: false
+  check_mode: false
+  when: not ansible_check_mode or dotfiles_claude_config_stat.stat.exists
+  tags: [claude]
+
+- name: Install i-have-adhd plugin for Claude Code
+  ansible.builtin.command:
+    argv:
+      - "{{ dotfiles_claude_executable }}"
+      - plugin
+      - install
+      - i-have-adhd@i-have-adhd
+      - --scope
+      - user
+  when: >-
+    'i-have-adhd@i-have-adhd' not in
+    (dotfiles_claude_plugins.stdout | default('[]', true) | from_json | map(attribute='id') | list)
+  changed_when: true
+  tags: [claude]

@@ -24,6 +24,46 @@
       - UppercasePackage
 
   tasks:
+    - name: Validate Claude Code MCP config for a fresh and signed-in user
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - static_claude_config.mcpServers.serena.type == 'stdio'
+          - "'--context=claude-code' in static_claude_config.mcpServers.serena.args"
+          - static_claude_config.mcpServers.context7.type == 'http'
+          - >-
+            (static_claude_config.mcpServers.context7.get('headers', {}) | length > 0)
+            == (item.api_key | length > 0)
+          - >-
+            item.config.items() | rejectattr('0', 'equalto', 'mcpServers') | list
+            | difference(static_claude_config.items() | list) | length == 0
+          - >-
+            item.config.get('mcpServers', {}).get('custom', {})
+            == static_claude_config.mcpServers.get('custom', {})
+      vars:
+        dotfiles_claude_config:
+          content: "{{ item.config | to_json | b64encode }}"
+        dotfiles_context7_api_key: "{{ item.api_key }}"
+        static_claude_config: >-
+          {{ lookup('ansible.builtin.template',
+                    playbook_dir + '/../roles/dotfiles/templates/claude/claude.json.j2') | from_json }}
+      loop:
+        - config: {}
+          api_key: ''
+        - config:
+            oauthAccount:
+              accountUuid: test-account
+            projects:
+              /tmp/example:
+                hasTrustDialogAccepted: true
+            mcpServers:
+              custom:
+                type: stdio
+                command: example
+          api_key: test-context7-key
+      loop_control:
+        label: "{{ 'signed-in user' if item.config else 'fresh install' }}"
+
     - name: Parse GNOME numeric extension versions
       ansible.builtin.assert:
         quiet: true

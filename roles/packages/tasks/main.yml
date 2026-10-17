@@ -13,7 +13,7 @@
       - stable
   register: packages_rustup_default
   changed_when: "'unchanged' not in packages_rustup_default.stdout"
-  tags: [codex, antigravity]
+  tags: [codex, antigravity, claude]
 
 - name: Install AUR packages
   ansible.builtin.include_role:

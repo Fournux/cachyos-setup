@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Read agent state payload from stdin
+# Read the Claude Code / Antigravity state payload from stdin
 payload="$(cat)"
 [ -z "$payload" ] && exit 0
 

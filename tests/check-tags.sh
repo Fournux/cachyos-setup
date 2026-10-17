@@ -39,9 +39,23 @@ dotfiles_tasks="$(list_tasks dotfiles)"
 require_task "$dotfiles_tasks" 'environment : Install Bun from the Arch repositories'
 require_task "$dotfiles_tasks" 'dotfiles : Install Codex CLI'
 require_task "$dotfiles_tasks" 'dotfiles : Deploy Codex config'
+require_task "$dotfiles_tasks" 'dotfiles : Install Claude Code'
+require_task "$dotfiles_tasks" 'dotfiles : Deploy Claude Code settings'
 require_task "$dotfiles_tasks" 'dotfiles : Install Antigravity CLI'
 require_task "$dotfiles_tasks" 'dotfiles : Deploy Antigravity CLI settings'
 require_task "$dotfiles_tasks" 'dotfiles : Install agent skills'
+
+claude_tasks="$(list_tasks claude)"
+require_task "$claude_tasks" 'environment : Install Bun from the Arch repositories'
+require_task "$claude_tasks" 'packages : Configure rustup default toolchain'
+require_task "$claude_tasks" 'dotfiles : Install agent skills'
+require_task "$claude_tasks" 'dotfiles : Install Serena via uv tool'
+require_task "$claude_tasks" 'dotfiles : Install Claude Code'
+require_task "$claude_tasks" 'dotfiles : Deploy Claude Code global instructions'
+require_task "$claude_tasks" 'dotfiles : Deploy Claude Code MCP config preserving user state'
+require_task "$claude_tasks" 'dotfiles : Install i-have-adhd plugin for Claude Code'
+reject_task "$claude_tasks" 'dotfiles : Install Codex CLI'
+reject_task "$claude_tasks" 'dotfiles : Install Antigravity CLI'
 
 flatpak_tasks="$(list_tasks flatpak)"
 require_task "$flatpak_tasks" 'packages : Install Flatpak'

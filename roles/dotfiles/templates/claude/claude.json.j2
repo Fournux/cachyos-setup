@@ -1,0 +1,14 @@
+{% set current_config = dotfiles_claude_config.content | default('e30=') | b64decode | from_json %}
+{% set context7 = {'type': 'http', 'url': 'https://mcp.context7.com/mcp'} %}
+{% if dotfiles_context7_api_key is defined and dotfiles_context7_api_key | length > 0 %}
+{% set context7 = context7 | combine({'headers': {'Authorization': 'Bearer ' ~ dotfiles_context7_api_key}}) %}
+{% endif %}
+{% set servers = {
+  'serena': {
+    'type': 'stdio',
+    'command': 'serena',
+    'args': ['start-mcp-server', '--context=claude-code', '--project-from-cwd']
+  },
+  'context7': context7
+} %}
+{{ current_config | combine({'mcpServers': current_config.get('mcpServers', {}) | combine(servers)}) | to_nice_json }}

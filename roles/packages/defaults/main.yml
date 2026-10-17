@@ -42,6 +42,7 @@ packages_pacman_packages:
   - nicotine+
 
 packages_aur_packages:
+  - claude-desktop
   - visual-studio-code-bin
   - gapless
   - papirus-icon-theme-git

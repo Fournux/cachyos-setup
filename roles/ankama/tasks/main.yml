@@ -1,0 +1,47 @@
+---
+- name: Install Ankama Launcher from the AUR
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages:
+      - ankama-launcher
+  tags: [packages]
+
+- name: Install desktop integration tools
+  become: true
+  community.general.pacman:
+    name: desktop-file-utils
+    state: present
+  tags: [packages]
+
+- name: Create user applications directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.local/share/applications"
+    state: directory
+    mode: '0755'
+
+- name: Check for the system Ankama desktop entry
+  ansible.builtin.stat:
+    path: /usr/share/applications/ankama-launcher.desktop
+  register: ankama_system_desktop
+
+- name: Read the system Ankama desktop entry
+  ansible.builtin.slurp:
+    src: /usr/share/applications/ankama-launcher.desktop
+  register: ankama_system_desktop_content
+  when: ankama_system_desktop.stat.exists
+
+- name: Deploy the Wayland Ankama desktop entry
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.local/share/applications/ankama-launcher.desktop"
+    content: >-
+      {{
+        (ankama_system_desktop_content.content | b64decode)
+        | regex_replace('(?m)^Exec=', 'Exec=env SDL_VIDEODRIVER=wayland ')
+      }}
+    mode: '0644'
+    validate: desktop-file-validate %s
+  notify: 'ankama : Update desktop database'
+  when: ankama_system_desktop.stat.exists
