@@ -42,12 +42,13 @@ mapfile -t fields < <(jq -r '
   else
     {
       name: ($raw_model | split(":")[0]),
-      effort: (.effort // (.model.id // "" | split(":")[1]) // "")
+      # effort is an object ({"level": "medium"}) in recent Claude Code payloads
+      effort: ((.effort | if type == "object" then .level else . end) // (.model.id // "" | split(":")[1]) // "")
     }
   end) as $m |
 
   $m.name,
-  $m.effort,
+  ($m.effort | tostring | ascii_downcase),
   (.workspace.project_dir // .cwd // ""),
   (.vcs.branch // .branch // .workspace.branch // ""),
   fmt_pct(.context_window.used_percentage // 0),
@@ -88,7 +89,7 @@ if [ -n "$effort" ] && [ "$effort" != "null" ]; then
       effort_icon="◐"
       effort_color="$C_EFFORT_MED"
       ;;
-    high)
+    high|xhigh|max)
       effort_icon="●"
       effort_color="$C_EFFORT_HIGH"
       ;;

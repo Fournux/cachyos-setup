@@ -44,7 +44,7 @@ experimental-features=['variable-refresh-rate', 'scale-monitor-framebuffer', 'xw
 overlay-key='Super_L'
 
 [org/gnome/shell]
-favorite-apps=['opera.desktop', 'org.gnome.Nautilus.desktop', 'discord.desktop', 'code.desktop', 'firefox.desktop', 'io.gitlab.news_flash.NewsFlash.desktop', 'com.mitchellh.ghostty.desktop', 'io.missioncenter.MissionCenter.desktop', 'steam.desktop']
+favorite-apps=['opera.desktop', 'org.gnome.Nautilus.desktop', 'discord.desktop', 'com.microsoft.VSCode.desktop', 'firefox.desktop', 'io.gitlab.news_flash.NewsFlash.desktop', 'com.mitchellh.ghostty.desktop', 'io.missioncenter.MissionCenter.desktop', 'steam.desktop']
 enabled-extensions=[{% for uuid in gnome_extensions | selectattr('enabled', 'equalto', true) | map(attribute='uuid') %}'{{ uuid }}'{% if not loop.last %}, {% endif %}{% endfor %}]
 last-selected-power-profile='performance'
 remember-mount-password=false

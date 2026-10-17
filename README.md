@@ -45,8 +45,9 @@ Codex, Claude Code, and Antigravity share the skills in `~/.agents/skills`, the
 global instructions in `roles/dotfiles/files/agents/AGENTS.md`, Serena, Context7,
 and the `i-have-adhd` plugin. Claude Code uses the native installer with automatic
 updates and signs in with your Claude subscription. Run `claude` after setup to
-sign in. Its `~/.claude/skills` directory links to the shared skills, and Ansible
-preserves existing user state when configuring MCP servers in `~/.claude.json`.
+sign in. Its `~/.claude/skills` directory contains individual links to the configured
+shared skills. Ansible preserves existing user state when configuring MCP servers
+in `~/.claude.json`.
 
 ## Machine profiles
 
