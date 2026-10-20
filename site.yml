@@ -1,6 +1,6 @@
 ---
 - name: CachyOS workstation setup
-  hosts: localhost
+  hosts: all
   connection: local
   gather_facts: true
   force_handlers: true
@@ -18,23 +18,15 @@
           ansible-playbook through sudo.
       tags: always
 
-    - name: Detect machine profile
-      ansible.builtin.set_fact:
-        machine_profile: "{{ machine_profiles.get(ansible_facts.hostname, 'unknown') }}"
-      tags: always
-
-    - name: Stop on invalid machine profile
-      ansible.builtin.fail:
-        msg: >-
-          Invalid machine profile '{{ machine_profile }}' for hostname
-          '{{ ansible_facts.hostname }}'. Map it to 'desktop' or 'laptop' in
-          group_vars/all/main.yml.
-      when: machine_profile not in ['desktop', 'laptop']
-      tags: always
-
-    - name: Show machine profile
-      ansible.builtin.debug:
-        msg: "Running setup for profile: {{ machine_profile }} ({{ ansible_facts.hostname }})"
+    - name: Stop when the inventory host is not this machine
+      ansible.builtin.assert:
+        that:
+          - inventory_hostname == ansible_facts.hostname
+        fail_msg: >-
+          Inventory host '{{ inventory_hostname }}' is not this machine
+          ('{{ ansible_facts.hostname }}'). Run ./bootstrap.sh, or pass
+          --limit "$(uname -n)" to ansible-playbook. A new machine needs an
+          entry in inventory/hosts.yml.
       tags: always
 
   roles:
@@ -59,10 +51,10 @@
     - role: discord
       tags: [discord]
     - role: desktop
-      when: machine_profile == 'desktop'
+      when: "'desktop' in group_names"
       tags: [desktop]
     - role: laptop
-      when: machine_profile == 'laptop'
+      when: "'laptop' in group_names"
       tags: [laptop]
     - role: environment
       tags: [environment]
@@ -80,3 +72,5 @@
       tags: [gwtoolbox, gaming]
     - role: dotfiles
       tags: [dotfiles]
+    - role: ai_agents
+      tags: [ai_agents]

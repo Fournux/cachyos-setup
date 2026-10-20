@@ -1,4 +1,5 @@
 ---
+# Discord is absent on purpose: its own "Open on startup" setting rewrites
+# ~/.config/autostart/discord.desktop at every launch.
 autostart_apps:
-  - discord
   - steam

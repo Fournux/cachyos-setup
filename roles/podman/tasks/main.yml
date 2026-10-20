@@ -44,31 +44,6 @@
       DOCKER_HOST=unix://$XDG_RUNTIME_DIR/podman/podman.sock
     mode: '0644'
 
-- name: Check for an existing Testcontainers configuration
-  ansible.builtin.stat:
-    path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
-  register: podman_testcontainers_config_file
-
-- name: Read the existing Testcontainers configuration
-  ansible.builtin.slurp:
-    src: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
-  register: podman_testcontainers_config_raw
-  when: podman_testcontainers_config_file.stat.exists
-
-- name: Remove legacy unmarked Testcontainers settings
-  ansible.builtin.lineinfile:
-    path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"
-    regexp: "{{ item }}"
-    state: absent
-  loop:
-    - '^docker[.]host=unix:///run/user/[0-9]+/podman/podman[.]sock$'
-    - '^ryuk[.]disabled=true$'
-  when:
-    - podman_testcontainers_config_file.stat.exists
-    - >-
-      'ANSIBLE MANAGED PODMAN SETTINGS'
-      not in (podman_testcontainers_config_raw.content | b64decode)
-
 - name: Manage Testcontainers Podman settings
   ansible.builtin.blockinfile:
     path: "{{ ansible_facts.env.HOME }}/.testcontainers.properties"

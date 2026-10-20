@@ -1,5 +1,6 @@
 ---
 aur_package_packages: []
+aur_package_name_pattern: '^[a-z0-9][a-z0-9@._+-]*$'
 aur_package_dependencies:
   - base-devel
   - yay

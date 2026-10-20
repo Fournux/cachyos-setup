@@ -36,11 +36,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes shellcheck
 
-      - name: Validate Bash syntax
-        run: bash -n bootstrap.sh show-elgato-output.sh tests/check-tags.sh
-
       - name: Run ShellCheck
-        run: shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh
+        run: >-
+          shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh
+          roles/ai_agents/files/agents/statusline.sh roles/plymouth/files/90-no-plymouth.conf
 
       - name: Lint Ansible and YAML
         run: ./bootstrap.sh lint

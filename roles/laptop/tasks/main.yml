@@ -41,9 +41,7 @@
   ansible.builtin.slurp:
     src: /usr/share/applications/steam.desktop
   register: laptop_system_steam_desktop_content
-  when:
-    - laptop_system_steam_desktop.stat.exists
-    - laptop_force_steam_dgpu | bool
+  when: laptop_system_steam_desktop.stat.exists
   tags: [laptop, steam, gaming]
 
 - name: Deploy discrete GPU Steam desktop entry
@@ -55,10 +53,8 @@
         | regex_replace('(?m)^Exec=/usr/bin/steam', 'Exec=env DRI_PRIME=1 /usr/bin/steam')
       }}
     mode: '0644'
-  notify: Update desktop database
-  when:
-    - laptop_system_steam_desktop.stat.exists
-    - laptop_force_steam_dgpu | bool
+  notify: 'laptop : Update desktop database'
+  when: laptop_system_steam_desktop.stat.exists
   tags: [laptop, steam, gaming]
 
 - name: Deploy discrete GPU Steam CLI wrapper
@@ -68,7 +64,5 @@
       #!/bin/sh
       exec env DRI_PRIME=1 /usr/bin/steam "$@"
     mode: '0755'
-  when:
-    - laptop_system_steam_desktop.stat.exists
-    - laptop_force_steam_dgpu | bool
+  when: laptop_system_steam_desktop.stat.exists
   tags: [laptop, steam, gaming]

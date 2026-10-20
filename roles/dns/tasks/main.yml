@@ -3,12 +3,10 @@
   ansible.builtin.assert:
     that:
       - nextdns_profile_id is defined
-      - nextdns_device_names is defined
-      - nextdns_device_names is mapping
-      - machine_profile is defined
+      - dns_nextdns_device_name is defined
     fail_msg: >-
-      Define nextdns_profile_id, nextdns_device_names and machine_profile before
-      running the DNS role.
+      Define nextdns_profile_id in group_vars/all and dns_nextdns_device_name
+      in the group_vars of this machine's inventory group.
 
 - name: Validate the private NextDNS profile ID without logging it
   ansible.builtin.set_fact:
@@ -24,27 +22,19 @@
     fail_msg: >-
       nextdns_profile_id must contain exactly six hexadecimal characters.
 
-- name: Require a device name for this machine profile
+- name: Validate the NextDNS device name
   ansible.builtin.assert:
     that:
-      - machine_profile in nextdns_device_names
+      - (dns_nextdns_device_name | string) is match('^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$')
+      - dns_nextdns_device_name | string | length <= 56
     fail_msg: >-
-      No NextDNS device name is defined for machine profile
-      '{{ machine_profile }}'.
-
-- name: Validate the machine-specific NextDNS device name
-  ansible.builtin.assert:
-    that:
-      - (nextdns_device_names[machine_profile] | string) is match('^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$')
-      - nextdns_device_names[machine_profile] | string | length <= 56
-    fail_msg: >-
-      nextdns_device_names['{{ machine_profile }}'] must be a non-empty DNS
-      label without leading/trailing hyphens and at most 56 characters long.
+      dns_nextdns_device_name must be a non-empty DNS label without
+      leading/trailing hyphens and at most 56 characters long.
 
 - name: Select the machine-specific NextDNS TLS hostname
   ansible.builtin.set_fact:
     dns_nextdns_hostname: >-
-      {{ nextdns_device_names[machine_profile] }}-{{ nextdns_profile_id }}
+      {{ dns_nextdns_device_name }}-{{ nextdns_profile_id }}
   changed_when: false
   no_log: true
 
@@ -91,4 +81,3 @@
     port: '5353'
     comment: mDNS from approved network
   loop: "{{ dns_allowed_networks }}"
-  when: dns_manage_ufw | bool

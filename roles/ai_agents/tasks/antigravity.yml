@@ -1,15 +1,15 @@
 ---
 - name: Create Antigravity install directory
   ansible.builtin.file:
-    path: "{{ dotfiles_agy_install_script_path | dirname }}"
+    path: "{{ ai_agents_agy_install_script_path | dirname }}"
     state: directory
     mode: '0755'
   tags: [antigravity, gemini]
 
 - name: Download the official Antigravity CLI installer
   ansible.builtin.get_url:
-    url: "{{ dotfiles_agy_install_script_url }}"
-    dest: "{{ dotfiles_agy_install_script_path }}"
+    url: "{{ ai_agents_agy_install_script_url }}"
+    dest: "{{ ai_agents_agy_install_script_path }}"
     mode: '0755'
     force: false
   tags: [antigravity, gemini]
@@ -18,8 +18,8 @@
   ansible.builtin.command:
     argv:
       - /bin/bash
-      - "{{ dotfiles_agy_install_script_path }}"
-    creates: "{{ dotfiles_agy_executable }}"
+      - "{{ ai_agents_agy_install_script_path }}"
+    creates: "{{ ai_agents_agy_executable }}"
   tags: [antigravity, gemini]
 
 - name: Create Antigravity config directory
@@ -76,7 +76,7 @@
 - name: Install i-have-adhd plugin for Antigravity
   ansible.builtin.command:
     argv:
-      - "{{ dotfiles_agy_executable }}"
+      - "{{ ai_agents_agy_executable }}"
       - plugin
       - install
       - https://github.com/ayghri/i-have-adhd

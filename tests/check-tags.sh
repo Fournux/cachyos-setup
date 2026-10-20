@@ -29,33 +29,37 @@ reject_task() {
 
 gdm_tasks="$(list_tasks gdm)"
 require_task "$gdm_tasks" 'gnome : Configure GDM dconf profile'
-reject_task "$gdm_tasks" 'gnome : Fetch compatible extension metadata'
+reject_task "$gdm_tasks" 'gnome : Download compatible GNOME extension archives'
 
 dconf_tasks="$(list_tasks dconf)"
 require_task "$dconf_tasks" 'gnome : Dump current dconf state'
-reject_task "$dconf_tasks" 'gnome : Fetch compatible extension metadata'
+reject_task "$dconf_tasks" 'gnome : Download compatible GNOME extension archives'
 
 dotfiles_tasks="$(list_tasks dotfiles)"
-require_task "$dotfiles_tasks" 'environment : Install Bun from the Arch repositories'
-require_task "$dotfiles_tasks" 'dotfiles : Install Codex CLI'
-require_task "$dotfiles_tasks" 'dotfiles : Deploy Codex config'
-require_task "$dotfiles_tasks" 'dotfiles : Install Claude Code'
-require_task "$dotfiles_tasks" 'dotfiles : Deploy Claude Code settings'
-require_task "$dotfiles_tasks" 'dotfiles : Install Antigravity CLI'
-require_task "$dotfiles_tasks" 'dotfiles : Deploy Antigravity CLI settings'
-require_task "$dotfiles_tasks" 'dotfiles : Install agent skills'
+require_task "$dotfiles_tasks" 'dotfiles : Deploy Ghostty config'
+require_task "$dotfiles_tasks" 'dotfiles : Deploy Topgrade config'
+reject_task "$dotfiles_tasks" 'ai_agents : Install Claude Code'
+
+ai_agents_tasks="$(list_tasks ai_agents)"
+require_task "$ai_agents_tasks" 'ai_agents : Install agent tool dependencies'
+require_task "$ai_agents_tasks" 'ai_agents : Configure rustup default toolchain'
+require_task "$ai_agents_tasks" 'ai_agents : Install Codex CLI'
+require_task "$ai_agents_tasks" 'ai_agents : Install Claude Code'
+require_task "$ai_agents_tasks" 'ai_agents : Install Antigravity CLI'
+reject_task "$ai_agents_tasks" 'packages : Install pacman packages'
 
 claude_tasks="$(list_tasks claude)"
-require_task "$claude_tasks" 'environment : Install Bun from the Arch repositories'
-require_task "$claude_tasks" 'packages : Configure rustup default toolchain'
-require_task "$claude_tasks" 'dotfiles : Install agent skills'
-require_task "$claude_tasks" 'dotfiles : Install Serena via uv tool'
-require_task "$claude_tasks" 'dotfiles : Install Claude Code'
-require_task "$claude_tasks" 'dotfiles : Deploy Claude Code global instructions'
-require_task "$claude_tasks" 'dotfiles : Deploy Claude Code MCP config preserving user state'
-require_task "$claude_tasks" 'dotfiles : Install i-have-adhd plugin for Claude Code'
-reject_task "$claude_tasks" 'dotfiles : Install Codex CLI'
-reject_task "$claude_tasks" 'dotfiles : Install Antigravity CLI'
+require_task "$claude_tasks" 'ai_agents : Install agent tool dependencies'
+require_task "$claude_tasks" 'ai_agents : Configure rustup default toolchain'
+require_task "$claude_tasks" 'ai_agents : Add rust-analyzer component'
+require_task "$claude_tasks" 'ai_agents : Install agent skills'
+require_task "$claude_tasks" 'ai_agents : Install Serena via uv tool'
+require_task "$claude_tasks" 'ai_agents : Install Claude Code'
+require_task "$claude_tasks" 'ai_agents : Deploy Claude Code global instructions'
+require_task "$claude_tasks" 'ai_agents : Deploy Claude Code MCP config preserving user state'
+require_task "$claude_tasks" 'ai_agents : Install i-have-adhd plugin for Claude Code'
+reject_task "$claude_tasks" 'ai_agents : Install Codex CLI'
+reject_task "$claude_tasks" 'ai_agents : Install Antigravity CLI'
 
 flatpak_tasks="$(list_tasks flatpak)"
 require_task "$flatpak_tasks" 'packages : Install Flatpak'

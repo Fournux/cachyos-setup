@@ -1,10 +1,18 @@
 ---
-- name: Install GNOME extension runtime dependencies
+- name: Install packaged GNOME extensions
   become: true
   community.general.pacman:
-    name: "{{ gnome_required_packages }}"
+    name: "{{ gnome_extension_packages }}"
     state: present
-  when: gnome_required_packages | length > 0
+  tags: [gnome, gnome_extensions]
+
+- name: Install AUR GNOME extensions
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages: "{{ gnome_extension_aur_packages }}"
   tags: [gnome, gnome_extensions]
 
 - name: Create system dconf lock directory
@@ -15,7 +23,7 @@
     owner: root
     group: root
     mode: '0755'
-  when: machine_profile == 'desktop'
+  when: gnome_disable_suspend | bool
   tags: [gnome, dconf]
 
 - name: Disable automatic suspend system-wide
@@ -28,7 +36,7 @@
     content: |
       [org/gnome/settings-daemon/plugins/power]
       sleep-inactive-ac-type='nothing'
-  when: machine_profile == 'desktop'
+  when: gnome_disable_suspend | bool
   notify: Update dconf database
   tags: [gnome, dconf]
 
@@ -41,7 +49,7 @@
     mode: '0644'
     content: |
       /org/gnome/settings-daemon/plugins/power/sleep-inactive-ac-type
-  when: machine_profile == 'desktop'
+  when: gnome_disable_suspend | bool
   notify: Update dconf database
   tags: [gnome, dconf]
 
@@ -66,7 +74,7 @@
   when: not gnome_session_available
   tags: [gnome, gnome_extensions, dconf]
 
-- name: Install and configure GNOME extensions
+- name: Install extensions.gnome.org extensions
   ansible.builtin.import_tasks: extensions.yml
   when: gnome_session_available
   tags: [gnome, gnome_extensions]

@@ -1,5 +1,4 @@
 ---
-limine_manage_theme: true
 limine_config_path: /boot/limine.conf
 
 limine_theme:

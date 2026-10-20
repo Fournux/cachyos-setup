@@ -24,26 +24,14 @@
   register: discord_settings_raw
   when: discord_settings_file.stat.exists
 
-- name: Merge SKIP_HOST_UPDATE into existing settings
+- name: Enable SKIP_HOST_UPDATE in Discord settings
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
     content: >-
       {{
-        (discord_settings_raw.content | b64decode | from_json)
+        (discord_settings_raw.content | default('e30=') | b64decode | from_json)
         | combine({'SKIP_HOST_UPDATE': true})
-        | to_nice_json
+        | to_nice_json(indent=2, sort_keys=false, ensure_ascii=false)
       }}
     mode: '0644'
     backup: true
-  when: discord_settings_file.stat.exists
-
-- name: Create Discord settings if absent
-  ansible.builtin.copy:
-    dest: "{{ ansible_facts.env.HOME }}/.config/discord/settings.json"
-    content: |
-      {
-          "SKIP_HOST_UPDATE": true
-      }
-    force: false
-    mode: '0644'
-  when: not discord_settings_file.stat.exists

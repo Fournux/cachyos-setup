@@ -1,22 +1,24 @@
 ---
-# Every entry in this list is installed by the role. The enabled flag is also
-# used to render org.gnome.shell enabled-extensions; do not maintain a second
-# UUID list in the dconf template.
-gnome_extensions:
-  - uuid: dash-to-panel@jderose9.github.com
-    enabled: true
-  - uuid: Vitals@CoreCoding.com
-    enabled: true
-  - uuid: appindicatorsupport@rgcjonas.gmail.com
-    enabled: true
-  - uuid: user-theme@gnome-shell-extensions.gcampax.github.com
-    enabled: true
-  - uuid: just-perfection-desktop@just-perfection
-    enabled: true
+# Extensions packaged for the installed GNOME release.
+gnome_extension_packages:
+  - gnome-shell-extension-appindicator
+  - gnome-shell-extension-dash-to-panel
+  - gnome-shell-extensions
+gnome_extension_aur_packages:
+  - gnome-shell-extension-just-perfection-desktop
 
-gnome_required_packages: []
-
-gnome_extension_api_timeout: 15
-gnome_extension_api_retries: 3
-gnome_extension_api_retry_delay: 2
+# Vitals has no maintained package, so it comes from extensions.gnome.org.
+# GNOME Shell then keeps it up to date.
+gnome_ego_extensions:
+  - Vitals@CoreCoding.com
 gnome_extension_download_timeout: 30
+
+# Rendered into org.gnome.shell enabled-extensions.
+gnome_enabled_extensions:
+  - dash-to-panel@jderose9.github.com
+  - Vitals@CoreCoding.com
+  - appindicatorsupport@rgcjonas.gmail.com
+  - user-theme@gnome-shell-extensions.gcampax.github.com
+  - just-perfection-desktop@just-perfection
+
+gnome_disable_suspend: false

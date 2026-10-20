@@ -1,8 +1,25 @@
 ---
+- name: Install agent tool dependencies
+  become: true
+  community.general.pacman:
+    name: "{{ ai_agents_packages }}"
+    state: present
+  tags: [codex, antigravity, claude, skills]
+
+- name: Configure rustup default toolchain
+  ansible.builtin.command:
+    argv:
+      - rustup
+      - default
+      - stable
+  register: ai_agents_rustup_default
+  changed_when: "'unchanged' not in ai_agents_rustup_default.stdout"
+  tags: [codex, antigravity, claude]
+
 - name: Install agent skills
   ansible.builtin.command:
     argv:
-      - "{{ dotfiles_bun_executable }}"
+      - "{{ ai_agents_bun_executable }}"
       - x
       - skills
       - add
@@ -12,7 +29,7 @@
       - --global
       - --yes
     creates: "{{ ansible_facts.env.HOME }}/.agents/skills/{{ item.name }}/SKILL.md"
-  loop: "{{ dotfiles_agent_skills }}"
+  loop: "{{ ai_agents_skills }}"
   loop_control:
     label: "{{ item.name }}"
   tags: [codex, antigravity, claude, skills]
@@ -24,14 +41,14 @@
       - component
       - add
       - rust-analyzer
-  register: dotfiles_rustup_component
-  changed_when: "'up to date' not in (dotfiles_rustup_component.stdout ~ dotfiles_rustup_component.stderr)"
+  register: ai_agents_rustup_component
+  changed_when: "'up to date' not in (ai_agents_rustup_component.stdout ~ ai_agents_rustup_component.stderr)"
   tags: [codex, antigravity, claude]
 
 - name: Install Serena via uv tool
   ansible.builtin.command:
     argv:
-      - "{{ dotfiles_uv_executable }}"
+      - "{{ ai_agents_uv_executable }}"
       - tool
       - install
       - serena-agent
@@ -45,9 +62,12 @@
     mode: '0755'
   tags: [codex, antigravity, claude]
 
-- name: Deploy Serena configuration
+# Serena owns this file once it exists: on load it adds new keys, generates an
+# auth secret, and records activated projects, then rewrites the file.
+- name: Deploy the initial Serena configuration
   ansible.builtin.template:
     src: serena/serena_config.yml.j2
     dest: "{{ ansible_facts.env.HOME }}/.serena/serena_config.yml"
     mode: '0644'
+    force: false
   tags: [codex, antigravity, claude]

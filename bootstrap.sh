@@ -10,7 +10,8 @@ export SHELL=/bin/bash
 PLAYBOOK_FILE="$ROOT_DIR/site.yml"
 REQUIREMENTS_FILE="$ROOT_DIR/requirements.yml"
 VAULT_PASSWORD_FILE="${VAULT_PASSWORD_FILE:-$ROOT_DIR/.vault-password}"
-readonly PLAYBOOK_FILE REQUIREMENTS_FILE VAULT_PASSWORD_FILE
+LOCAL_HOST="$(uname -n)"
+readonly PLAYBOOK_FILE REQUIREMENTS_FILE VAULT_PASSWORD_FILE LOCAL_HOST
 readonly -a SYSTEM_PACKAGES=(ansible ansible-lint yamllint shellcheck yay)
 
 usage() {
@@ -24,10 +25,14 @@ Commands:
   help            display this help
   deps            install the pinned Ansible Galaxy dependencies only
   upgrade         explicitly upgrade CachyOS/Arch and install project tooling
-  run             run the setup (requires a readable vault password file)
-  check [--diff]  run Ansible check mode; diff is opt-in because it may expose secrets
+  run [options]   run the setup (requires a readable vault password file)
+  check [options] run Ansible check mode; --diff is opt-in because it may expose secrets
   lint            run Bash, YAML, and Ansible linters offline
   syntax          run the Ansible syntax check
+
+run and check pass extra options to ansible-playbook, for example
+'./bootstrap.sh run --tags ankama'. Both limit the play to the inventory host
+named after this machine.
 
 Environment:
   VAULT_PASSWORD_FILE  vault password file used by run/check only
@@ -110,29 +115,30 @@ case "$command_name" in
     install_galaxy_dependencies
     ;;
   run)
-    require_no_arguments "$command_name" "$@"
     preflight_playbook
     preflight_vault
-    echo '==> Running setup playbook...'
+    echo "==> Running setup playbook for $LOCAL_HOST..."
     ansible-playbook "$PLAYBOOK_FILE" \
+      --limit "$LOCAL_HOST" \
       --vault-password-file "$VAULT_PASSWORD_FILE" \
-      --ask-become-pass
+      --ask-become-pass \
+      "$@"
     ;;
   check)
-    check_args=(--check --vault-password-file "$VAULT_PASSWORD_FILE" --ask-become-pass)
-    case "$#" in
-      0) ;;
-      1)
-        [[ "$1" == '--diff' ]] || fail "unknown check option '$1'; only --diff is supported."
-        echo 'Warning: --diff may print sensitive values; use its output carefully.' >&2
-        check_args+=(--diff)
-        ;;
-      *) fail "check accepts at most one option: --diff." ;;
-    esac
     preflight_playbook
     preflight_vault
-    echo '==> Running setup playbook in check mode...'
-    ansible-playbook "$PLAYBOOK_FILE" "${check_args[@]}"
+    for option in "$@"; do
+      if [[ "$option" == '--diff' ]]; then
+        echo 'Warning: --diff may print sensitive values; use its output carefully.' >&2
+      fi
+    done
+    echo "==> Running setup playbook in check mode for $LOCAL_HOST..."
+    ansible-playbook "$PLAYBOOK_FILE" \
+      --check \
+      --limit "$LOCAL_HOST" \
+      --vault-password-file "$VAULT_PASSWORD_FILE" \
+      --ask-become-pass \
+      "$@"
     ;;
   lint)
     require_no_arguments "$command_name" "$@"
@@ -145,8 +151,8 @@ case "$command_name" in
     require_file "$ROOT_DIR/tests/static.yml" "static test playbook"
     require_file "$ROOT_DIR/tests/check-tags.sh" "tag-selection test"
     echo '==> Checking Bash scripts...'
-    bash -n bootstrap.sh show-elgato-output.sh tests/check-tags.sh
-    shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh
+    shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh \
+      roles/ai_agents/files/agents/statusline.sh roles/plymouth/files/90-no-plymouth.conf
     echo '==> Running yamllint...'
     yamllint .
     echo '==> Running Ansible syntax-check...'

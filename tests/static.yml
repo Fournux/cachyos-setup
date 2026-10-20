@@ -4,16 +4,10 @@
   connection: local
   gather_facts: false
   vars_files:
+    - ../roles/aur_package/defaults/main.yml
     - ../roles/gnome/defaults/main.yml
   vars:
     dns_nextdns_hostname: test-device-abcdef
-    gnome_version_fixtures:
-      - output: '  Version: 73'
-        expected: 73
-      - output: '  Version: 50.6 (95)'
-        expected: 95
-      - output: '  Version: 69.2 (73)'
-        expected: 73
     valid_aur_package_names:
       - gapless
       - visual-studio-code-bin
@@ -41,12 +35,12 @@
             item.config.get('mcpServers', {}).get('custom', {})
             == static_claude_config.mcpServers.get('custom', {})
       vars:
-        dotfiles_claude_config:
+        ai_agents_claude_config:
           content: "{{ item.config | to_json | b64encode }}"
-        dotfiles_context7_api_key: "{{ item.api_key }}"
+        ai_agents_context7_api_key: "{{ item.api_key }}"
         static_claude_config: >-
           {{ lookup('ansible.builtin.template',
-                    playbook_dir + '/../roles/dotfiles/templates/claude/claude.json.j2') | from_json }}
+                    playbook_dir + '/../roles/ai_agents/templates/claude/claude.json.j2') | from_json }}
       loop:
         - config: {}
           api_key: ''
@@ -64,43 +58,18 @@
       loop_control:
         label: "{{ 'signed-in user' if item.config else 'fresh install' }}"
 
-    - name: Parse GNOME numeric extension versions
-      ansible.builtin.assert:
-        quiet: true
-        that:
-          - gnome_fixture_version | int == item.expected | int
-        fail_msg: >-
-          Failed to parse the GNOME extension version from '{{ item.output }}'.
-      vars:
-        gnome_fixture_version: >-
-          {{
-            item.output
-            | regex_findall('(?m)^\s*Version:.*\(([0-9]+)\)\s*$')
-            | first
-            | default(
-                item.output
-                | regex_findall('(?m)^\s*Version:\s*([0-9]+)\s*$')
-                | first
-                | default('0', true),
-                true
-              )
-          }}
-      loop: "{{ gnome_version_fixtures }}"
-      loop_control:
-        label: "{{ item.output | trim }}"
-
     - name: Accept valid AUR package names
       ansible.builtin.assert:
         quiet: true
         that:
-          - item is match('^[a-z0-9][a-z0-9@._+-]*$')
+          - item is match(aur_package_name_pattern)
       loop: "{{ valid_aur_package_names }}"
 
     - name: Reject option-like or invalid AUR package names
       ansible.builtin.assert:
         quiet: true
         that:
-          - item is not match('^[a-z0-9][a-z0-9@._+-]*$')
+          - item is not match(aur_package_name_pattern)
       loop: "{{ invalid_aur_package_names }}"
 
     - name: Render the managed GNOME dconf keyfile
@@ -114,15 +83,13 @@
           }}
       changed_when: false
 
-    - name: Validate the GNOME extension source of truth
+    - name: Render every enabled GNOME extension into dconf
       ansible.builtin.assert:
         quiet: true
         that:
           - "'dash-to-panel@jderose9.github.com' in static_gnome_dconf"
           - >-
-            gnome_extensions
-            | selectattr('enabled', 'equalto', true)
-            | map(attribute='uuid')
+            gnome_enabled_extensions
             | difference(static_gnome_dconf | regex_findall("'([^']+@[^']+)'"))
             | length == 0
 
@@ -145,3 +112,20 @@
           - "'DNS=2a07:a8c0::#test-device-abcdef.dns.nextdns.io' in static_resolved_config"
           - "'DNS=2a07:a8c1::#test-device-abcdef.dns.nextdns.io' in static_resolved_config"
           - "'DNS=45.90.28.0#test-device-abcdef.dns.nextdns.io' in static_resolved_config"
+
+    - name: Run the Plymouth mkinitcpio drop-in against a HOOKS fixture
+      ansible.builtin.command:
+        argv:
+          - bash
+          - -c
+          - set -eu; HOOKS=(base systemd plymouth autodetect sd-plymouth); . "$1"; printf '%s' "${HOOKS[*]}"
+          - static-plymouth-test
+          - "{{ playbook_dir }}/../roles/plymouth/files/90-no-plymouth.conf"
+      register: static_plymouth_hooks
+      changed_when: false
+
+    - name: Remove only the Plymouth hook
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - static_plymouth_hooks.stdout == 'base systemd autodetect sd-plymouth'

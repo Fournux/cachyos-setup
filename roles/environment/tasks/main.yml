@@ -1,17 +1,9 @@
 ---
-- name: Install Bun from the Arch repositories
-  become: true
-  community.general.pacman:
-    name: "{{ environment_bun_packages }}"
-    state: present
-  tags: [bun, dotfiles, claude]
-
 - name: Create environment.d directory
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
     state: directory
     mode: '0755'
-  tags: [bun, dotfiles]
 
 - name: Write Bun environment
   ansible.builtin.copy:
@@ -19,7 +11,6 @@
     content: |
       BUN_INSTALL=$HOME/.bun
     mode: '0644'
-  tags: [bun, dotfiles]
 
 - name: Write PATH environment
   ansible.builtin.copy:
@@ -35,6 +26,7 @@
       - $HOME/bin
       - $HOME/.dotnet
       - $HOME/.dotnet/tools
+
 - name: Write Electron Wayland environment
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-electron.conf"
@@ -42,53 +34,12 @@
       ELECTRON_OZONE_PLATFORM_HINT=wayland
     mode: '0644'
 
-- name: Check for the user dotnet executable
-  ansible.builtin.stat:
-    path: "{{ ansible_facts.env.HOME }}/.dotnet/dotnet"
-  register: environment_user_dotnet_binary
-
-- name: Check for the system dotnet executable
-  ansible.builtin.stat:
-    path: /usr/bin/dotnet
-  register: environment_system_dotnet_binary
-
-- name: Resolve the system dotnet executable
-  ansible.builtin.command:
-    argv:
-      - readlink
-      - -f
-      - /usr/bin/dotnet
-  register: environment_dotnet_executable
-  changed_when: false
-  check_mode: false
-  when:
-    - not environment_user_dotnet_binary.stat.exists
-    - environment_system_dotnet_binary.stat.exists
-
 - name: Write dotnet root environment
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
     content: |
-      DOTNET_ROOT={{
-        '$HOME/.dotnet'
-        if environment_user_dotnet_binary.stat.exists
-        else (environment_dotnet_executable.stdout | dirname)
-      }}
+      DOTNET_ROOT=$HOME/.dotnet
     mode: '0644'
-  when: environment_user_dotnet_binary.stat.exists or environment_system_dotnet_binary.stat.exists
-
-- name: Remove stale dotnet root environment
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
-    state: absent
-  when:
-    - not environment_user_dotnet_binary.stat.exists
-    - not environment_system_dotnet_binary.stat.exists
-
-- name: Check for the Godot executable
-  ansible.builtin.stat:
-    path: /usr/bin/godot
-  register: environment_godot_binary
 
 - name: Write Godot environment
   ansible.builtin.copy:
@@ -96,10 +47,3 @@
     content: |
       GODOT=/usr/bin/godot
     mode: '0644'
-  when: environment_godot_binary.stat.exists
-
-- name: Remove stale Godot environment
-  ansible.builtin.file:
-    path: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
-    state: absent
-  when: not environment_godot_binary.stat.exists

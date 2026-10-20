@@ -7,6 +7,9 @@ argument_specs:
         type: list
         elements: str
         default: []
+      aur_package_name_pattern:
+        type: str
+        default: '^[a-z0-9][a-z0-9@._+-]*$'
       aur_package_dependencies:
         type: list
         elements: str
@@ -15,4 +18,10 @@ argument_specs:
           - yay
       aur_package_helper:
         type: str
-        default: yay
+        default: /usr/bin/yay
+      aur_package_pacman_executable:
+        type: str
+        default: /usr/bin/pacman
+      aur_package_privilege_escalation_executable:
+        type: str
+        default: /usr/bin/pkexec

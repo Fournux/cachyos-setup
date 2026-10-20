@@ -4,29 +4,3 @@ dotfiles_ghostty_packages:
 
 dotfiles_topgrade_packages:
   - topgrade
-
-dotfiles_bun_executable: /usr/bin/bun
-dotfiles_codex_executable: "{{ ansible_facts.env.HOME }}/.local/bin/codex"
-dotfiles_codex_install_script_url: https://chatgpt.com/codex/install.sh
-dotfiles_codex_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/codex/install.sh"
-dotfiles_claude_executable: "{{ ansible_facts.env.HOME }}/.local/bin/claude"
-dotfiles_claude_install_script_url: https://claude.ai/install.sh
-dotfiles_claude_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/claude/install.sh"
-dotfiles_agy_executable: "{{ ansible_facts.env.HOME }}/.local/bin/agy"
-dotfiles_agy_install_script_url: https://antigravity.google/cli/install.sh
-dotfiles_agy_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/antigravity/install.sh"
-dotfiles_agent_skills:
-  - repository: DietrichGebert/ponytail
-    name: ponytail-review
-  - repository: DietrichGebert/ponytail
-    name: ponytail-audit
-  - repository: mattpocock/skills
-    name: grilling
-  - repository: mattpocock/skills
-    name: grill-me
-  - repository: leonardomso/rust-skills
-    name: rust-skills
-
-dotfiles_context7_api_key: "{{ context7_api_key | default('') }}"
-dotfiles_dotnet_executable: "{{ ansible_facts.env.HOME }}/.dotnet/dotnet"
-dotfiles_uv_executable: uv

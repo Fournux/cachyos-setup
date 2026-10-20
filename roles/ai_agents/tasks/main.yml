@@ -1,0 +1,12 @@
+---
+- name: Configure shared agent tools
+  ansible.builtin.import_tasks: agents.yml
+
+- name: Configure Codex
+  ansible.builtin.import_tasks: codex.yml
+
+- name: Configure Claude Code
+  ansible.builtin.import_tasks: claude.yml
+
+- name: Configure Antigravity
+  ansible.builtin.import_tasks: antigravity.yml

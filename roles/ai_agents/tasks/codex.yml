@@ -1,15 +1,15 @@
 ---
 - name: Create Codex install directory
   ansible.builtin.file:
-    path: "{{ dotfiles_codex_install_script_path | dirname }}"
+    path: "{{ ai_agents_codex_install_script_path | dirname }}"
     state: directory
     mode: '0755'
   tags: [codex]
 
 - name: Download the official Codex CLI installer
   ansible.builtin.get_url:
-    url: "{{ dotfiles_codex_install_script_url }}"
-    dest: "{{ dotfiles_codex_install_script_path }}"
+    url: "{{ ai_agents_codex_install_script_url }}"
+    dest: "{{ ai_agents_codex_install_script_path }}"
     mode: '0755'
     force: false
   tags: [codex]
@@ -18,8 +18,8 @@
   ansible.builtin.command:
     argv:
       - /bin/sh
-      - "{{ dotfiles_codex_install_script_path }}"
-    creates: "{{ dotfiles_codex_executable }}"
+      - "{{ ai_agents_codex_install_script_path }}"
+    creates: "{{ ai_agents_codex_executable }}"
   environment:
     CODEX_NON_INTERACTIVE: "1"
   tags: [codex]
@@ -49,7 +49,7 @@
 - name: Add i-have-adhd marketplace for Codex
   ansible.builtin.command:
     argv:
-      - "{{ dotfiles_codex_executable }}"
+      - "{{ ai_agents_codex_executable }}"
       - plugin
       - marketplace
       - add
@@ -62,7 +62,7 @@
 - name: Install i-have-adhd plugin for Codex
   ansible.builtin.command:
     argv:
-      - "{{ dotfiles_codex_executable }}"
+      - "{{ ai_agents_codex_executable }}"
       - plugin
       - add
       - i-have-adhd@i-have-adhd

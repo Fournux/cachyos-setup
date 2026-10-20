@@ -41,22 +41,25 @@ updates. Run `./bootstrap.sh run --tags ankama` to apply this role on its own.
 ## AI coding agents
 
 Codex, Claude Code, and Antigravity share the skills in `~/.agents/skills`, the
-global instructions in `roles/dotfiles/files/agents/AGENTS.md`, Serena, Context7,
+global instructions in `roles/ai_agents/files/agents/AGENTS.md`, Serena, Context7,
 and the `i-have-adhd` plugin. Claude Code uses the native installer with automatic
 updates and signs in with your Claude subscription. Run `claude` after setup to
 sign in. Its `~/.claude/skills` directory contains individual links to the configured
 shared skills. Ansible preserves existing user state when configuring MCP servers
-in `~/.claude.json`.
+in `~/.claude.json`. The `ai_agents` role installs its own Bun, uv, and rustup
+dependencies, so `./bootstrap.sh run --tags claude` works on its own.
 
 ## Machine profiles
 
-The shared playbook configures both machines. It then selects one profile from
-the local hostname, so hardware-specific packages and services do not leak
-between them.
+The shared playbook configures both machines. Each machine is an inventory host
+named after its hostname, in the `desktop` or `laptop` group, and
+`./bootstrap.sh` limits the play to the host matching `uname -n`. Machine-specific
+values live in `group_vars/desktop/` and `group_vars/laptop/`, so
+hardware-specific packages and services do not leak between them.
 
-| Profile   | Hostname          | Additional configuration                                          |
+| Group     | Hostname          | Additional configuration                                          |
 | --------- | ----------------- | ----------------------------------------------------------------- |
-| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux)     |
+| `desktop` | `cachyos-desktop` | [**Wootility**](https://github.com/WootingKb/wootility-linux), Wake-on-LAN, and no automatic suspend |
 | `laptop`  | `cachyos-laptop`  | `asusctl`, `supergfxctl`, `rog-control-center`, and `solaar`; `supergfxd` is enabled and started                                        |
 
 ## GNOME extensions

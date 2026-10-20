@@ -1,4 +1,3 @@
 ---
-dns_manage_ufw: true
 dns_allowed_networks:
   - 192.168.1.0/24

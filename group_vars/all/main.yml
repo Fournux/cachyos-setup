@@ -1,12 +1,4 @@
 ---
-machine_profiles:
-  cachyos-desktop: desktop
-  cachyos-laptop: laptop
-
-nextdns_device_names:
-  desktop: FournuxFixe
-  laptop: FournuxZephyrus
-
 nextdns_profile_id: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   30623437653631613062366330636166366434616166376139356232303537373866373833333531

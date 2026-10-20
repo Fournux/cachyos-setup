@@ -1,0 +1,32 @@
+---
+# Tools the agent tasks call directly: bun installs skills, uv installs Serena,
+# and rustup provides rust-analyzer for Serena.
+ai_agents_packages:
+  - bun
+  - uv
+  - rustup
+
+ai_agents_bun_executable: /usr/bin/bun
+ai_agents_uv_executable: /usr/bin/uv
+ai_agents_codex_executable: "{{ ansible_facts.env.HOME }}/.local/bin/codex"
+ai_agents_codex_install_script_url: https://chatgpt.com/codex/install.sh
+ai_agents_codex_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/codex/install.sh"
+ai_agents_claude_executable: "{{ ansible_facts.env.HOME }}/.local/bin/claude"
+ai_agents_claude_install_script_url: https://claude.ai/install.sh
+ai_agents_claude_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/claude/install.sh"
+ai_agents_agy_executable: "{{ ansible_facts.env.HOME }}/.local/bin/agy"
+ai_agents_agy_install_script_url: https://antigravity.google/cli/install.sh
+ai_agents_agy_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/antigravity/install.sh"
+ai_agents_skills:
+  - repository: DietrichGebert/ponytail
+    name: ponytail-review
+  - repository: DietrichGebert/ponytail
+    name: ponytail-audit
+  - repository: mattpocock/skills
+    name: grilling
+  - repository: mattpocock/skills
+    name: grill-me
+  - repository: leonardomso/rust-skills
+    name: rust-skills
+
+ai_agents_context7_api_key: "{{ context7_api_key | default('') }}"
