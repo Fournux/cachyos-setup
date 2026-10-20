@@ -34,9 +34,8 @@
 | System upgrades        | [**Topgrade**](https://github.com/topgrade-rs/topgrade) — centralizes upgrades across packages, tools, and runtimes; replaces the preinstalled `cachy-update` and Shelly, which are removed |
 | PDF toolkit            | [**Stirling PDF**](https://github.com/Stirling-Tools/Stirling-PDF)                                                                                                                                         |
 
-Ankama Launcher is installed from the AUR. Its user desktop entry sets
-`SDL_VIDEODRIVER=wayland` so Dofus uses native Wayland, including after package
-updates. Run `./bootstrap.sh run --tags ankama` to apply this role on its own.
+Ankama Launcher is installed from the AUR. Run
+`./bootstrap.sh run --tags ankama` to apply this role on its own.
 
 ## AI coding agents
 
