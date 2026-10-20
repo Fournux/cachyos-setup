@@ -38,6 +38,15 @@ packages_pacman_packages:
   - gst-plugin-va
   - nicotine+
 
+# Preinstalled by CachyOS; Topgrade handles system upgrades instead.
+packages_pacman_packages_absent:
+  - cachy-update
+  - shelly
+
+# CachyOS enables this cachy-update timer globally; the link is not owned by
+# the package, so pacman would leave it dangling.
+packages_cachy_update_timer_link: /etc/systemd/user/timers.target.wants/arch-update.timer
+
 packages_aur_packages:
   - claude-desktop
   - visual-studio-code-bin

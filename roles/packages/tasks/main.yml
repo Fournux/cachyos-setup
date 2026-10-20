@@ -5,6 +5,18 @@
     name: "{{ packages_pacman_packages }}"
     state: present
 
+- name: Disable the global cachy-update timer
+  become: true
+  ansible.builtin.file:
+    path: "{{ packages_cachy_update_timer_link }}"
+    state: absent
+
+- name: Remove preinstalled CachyOS packages
+  become: true
+  community.general.pacman:
+    name: "{{ packages_pacman_packages_absent }}"
+    state: absent
+
 - name: Install AUR packages
   ansible.builtin.include_role:
     name: aur_package
