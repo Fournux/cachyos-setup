@@ -12,7 +12,6 @@ packages_pacman_packages:
   - steam
   - wine-staging
   - mission-center
-  - newsflash
   - protonplus
   - obs-studio
   - vlc

@@ -30,7 +30,6 @@
 | AI coding agents       | [**Codex CLI**](https://github.com/openai/codex), [**Claude Code**](https://code.claude.com/docs/en/overview), and [**Antigravity CLI**](https://antigravity.google) |
 | Claude desktop app     | [**claude-desktop**](https://aur.archlinux.org/packages/claude-desktop) (AUR) |
 | Netflix browser        | **Opera** — the only browser that gives me 1080p Netflix playback on Linux                                                                                                                                 |
-| RSS reader             | [**NewsFlash**](https://gitlab.com/news-flash/news_flash_gtk) — for following news from my favorite websites                                                                                               |
 | Proton version manager | [**ProtonPlus**](https://github.com/Vysp3r/ProtonPlus) — manages [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom) and [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos) versions |
 | System upgrades        | [**Topgrade**](https://github.com/topgrade-rs/topgrade) — centralizes upgrades across packages, tools, and runtimes                                                                                        |
 | PDF toolkit            | [**Stirling PDF**](https://github.com/Stirling-Tools/Stirling-PDF)                                                                                                                                         |
@@ -67,7 +66,6 @@ between them.
 
 ## Manual assets
 
-- Import `roles/packages/files/newsflash/Newsflash.OPML` from the NewsFlash UI when initializing feeds.
 - `show-elgato-output.sh` is a validated standalone helper. Run `./show-elgato-output.sh --help`; its default capture device is machine-specific and can be overridden with `--video-device` and `--sound-device`.
 
 ## Appearance
