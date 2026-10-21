@@ -4,4 +4,6 @@
 [misc]
 # Disable pacdiff (config_update) to prevent overwriting CachyOS configurations
 # with vanilla Arch Linux .pacnew files.
-disable = ["config_update"]
+# Disable github_cli_skills: the agent skills come from `skills add`, so the
+# `skills` step (npx skills update) updates them and `gh skill` cannot.
+disable = ["config_update", "github_cli_skills"]
