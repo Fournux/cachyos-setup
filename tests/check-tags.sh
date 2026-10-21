@@ -61,20 +61,40 @@ require_task "$claude_tasks" 'ai_agents : Install i-have-adhd plugin for Claude 
 reject_task "$claude_tasks" 'ai_agents : Install Codex CLI'
 reject_task "$claude_tasks" 'ai_agents : Install Antigravity CLI'
 
+codex_tasks="$(list_tasks codex)"
+require_task "$codex_tasks" 'ai_agents : Deploy Codex system config'
+reject_task "$codex_tasks" 'ai_agents : Deploy Claude Code settings'
+
 flatpak_tasks="$(list_tasks flatpak)"
 require_task "$flatpak_tasks" 'packages : Install Flatpak'
 require_task "$flatpak_tasks" 'packages : Install Flatpak packages'
 
 packages_tasks="$(list_tasks packages)"
-require_task "$packages_tasks" 'Install desktop-specific AUR packages'
+require_task "$packages_tasks" 'packages : Install pacman packages'
+require_task "$packages_tasks" 'Install AUR packages'
+require_task "$packages_tasks" 'laptop : Install supergfxctl'
 reject_task "$packages_tasks" 'desktop : Enable Wake-on-LAN globally in NetworkManager'
-require_task "$packages_tasks" 'laptop : Install laptop-specific packages'
 reject_task "$packages_tasks" 'laptop : Enable supergfxd service'
 
 dns_tasks="$(list_tasks dns)"
-require_task "$dns_tasks" 'dns : Install Avahi'
+require_task "$dns_tasks" 'dns : Deploy the NextDNS systemd-resolved drop-in'
+reject_task "$dns_tasks" 'mdns : Install Avahi and ufw'
+
+mdns_tasks="$(list_tasks mdns)"
+require_task "$mdns_tasks" 'mdns : Install Avahi and ufw'
+require_task "$mdns_tasks" 'mdns : Allow mDNS from approved networks'
+reject_task "$mdns_tasks" 'dns : Deploy the NextDNS systemd-resolved drop-in'
+
+boot_tasks="$(list_tasks boot)"
+require_task "$boot_tasks" 'boot : Remove Plymouth packages'
+require_task "$boot_tasks" 'boot : Apply Limine Adwaita Dark global theme keys'
+
+plymouth_tasks="$(list_tasks plymouth)"
+require_task "$plymouth_tasks" 'boot : Remove Plymouth packages'
+reject_task "$plymouth_tasks" 'boot : Apply Limine Adwaita Dark global theme keys'
 
 gimp_tasks="$(list_tasks gimp)"
+require_task "$gimp_tasks" 'Stop when CachyOS was not installed with GNOME and Limine'
 require_task "$gimp_tasks" 'gimp : Install GIMP'
 require_task "$gimp_tasks" 'gimp : Install the arrow Script-Fu plugin for the user'
 

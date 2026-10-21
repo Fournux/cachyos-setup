@@ -39,7 +39,7 @@ jobs:
       - name: Run ShellCheck
         run: >-
           shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh
-          roles/ai_agents/files/agents/statusline.sh roles/plymouth/files/90-no-plymouth.conf
+          roles/ai_agents/files/agents/statusline.sh roles/boot/files/90-no-plymouth.conf
 
       - name: Lint Ansible and YAML
         run: ./bootstrap.sh lint

@@ -11,6 +11,8 @@ ai_agents_uv_executable: /usr/bin/uv
 ai_agents_codex_executable: "{{ ansible_facts.env.HOME }}/.local/bin/codex"
 ai_agents_codex_install_script_url: https://chatgpt.com/codex/install.sh
 ai_agents_codex_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/codex/install.sh"
+# System config layer; Codex keeps ~/.codex/config.toml for its own state.
+ai_agents_codex_system_config_path: /etc/codex/config.toml
 ai_agents_claude_executable: "{{ ansible_facts.env.HOME }}/.local/bin/claude"
 ai_agents_claude_install_script_url: https://claude.ai/install.sh
 ai_agents_claude_install_script_path: "{{ ansible_facts.env.HOME }}/.local/share/claude/install.sh"

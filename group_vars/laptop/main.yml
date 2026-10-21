@@ -1,2 +1,5 @@
 ---
-dns_nextdns_device_name: FournuxZephyrus
+packages_extra_pacman_packages:
+  - asusctl
+  - rog-control-center
+  - solaar

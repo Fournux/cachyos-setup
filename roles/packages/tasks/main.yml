@@ -2,7 +2,7 @@
 - name: Install pacman packages
   become: true
   community.general.pacman:
-    name: "{{ packages_pacman_packages }}"
+    name: "{{ packages_pacman_packages + packages_extra_pacman_packages }}"
     state: present
 
 - name: Disable the global cachy-update timer
@@ -23,7 +23,7 @@
     apply:
       tags: always
   vars:
-    aur_package_packages: "{{ packages_aur_packages }}"
+    aur_package_packages: "{{ packages_aur_packages + packages_extra_aur_packages }}"
 
 - name: Install Flatpak
   become: true

@@ -32,10 +32,21 @@
 | Netflix browser        | **Opera** — the only browser that gives me 1080p Netflix playback on Linux                                                                                                                                 |
 | Proton version manager | [**ProtonPlus**](https://github.com/Vysp3r/ProtonPlus) — manages [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom) and [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos) versions |
 | System upgrades        | [**Topgrade**](https://github.com/topgrade-rs/topgrade) — centralizes upgrades across packages, tools, and runtimes; replaces the preinstalled `cachy-update` and Shelly, which are removed |
-| PDF toolkit            | [**Stirling PDF**](https://github.com/Stirling-Tools/Stirling-PDF)                                                                                                                                         |
 
-Ankama Launcher is installed from the AUR. Run
-`./bootstrap.sh run --tags ankama` to apply this role on its own.
+Ankama Launcher is installed from the AUR with the other AUR packages
+(`./bootstrap.sh run --tags packages`).
+
+## Fresh install
+
+1. Install CachyOS with the **GNOME** desktop and the **Limine** bootloader, and set the hostname to the machine's inventory name (`cachyos-desktop` or `cachyos-laptop`). The playbook stops early when one of these is missing.
+2. Log in to GNOME and open a terminal there: GNOME settings and extensions are only applied from inside a GNOME session.
+3. Clone this repository and run `./bootstrap.sh upgrade`. It upgrades the system, then installs Ansible, the linters, yay, and the pinned Galaxy collections.
+4. Restore the vault password into `.vault-password`, then run `chmod 600 .vault-password`.
+5. Run `./bootstrap.sh run`, then reboot so the login shell, `environment.d`, kernel module, and initramfs changes apply.
+6. Run `./bootstrap.sh run` again. The recap should report `changed=0`; any other count points to a task that is not idempotent.
+
+GWToolbox settings are deployed only once Guild Wars is installed in Steam. Run
+`./bootstrap.sh run --tags gwtoolbox` after installing it.
 
 ## AI coding agents
 
@@ -45,16 +56,20 @@ and the `i-have-adhd` plugin. Claude Code uses the native installer with automat
 updates and signs in with your Claude subscription. Run `claude` after setup to
 sign in. Its `~/.claude/skills` directory contains individual links to the configured
 shared skills. Ansible preserves existing user state when configuring MCP servers
-in `~/.claude.json`. The `ai_agents` role installs its own Bun, uv, and rustup
+in `~/.claude.json`. Codex reads the managed settings from `/etc/codex/config.toml`, a
+system layer under `~/.codex/config.toml`, so Codex keeps its own state there
+(project trust, notices, plugins). The `ai_agents` role installs its own Bun, uv, and rustup
 dependencies, so `./bootstrap.sh run --tags claude` works on its own.
 
 ## Machine profiles
 
 The shared playbook configures both machines. Each machine is an inventory host
 named after its hostname, in the `desktop` or `laptop` group, and
-`./bootstrap.sh` limits the play to the host matching `uname -n`. Machine-specific
-values live in `group_vars/desktop/` and `group_vars/laptop/`, so
-hardware-specific packages and services do not leak between them.
+`./bootstrap.sh` limits the play to the host matching `uname -n`. Values that
+identify one machine, such as its NextDNS device name, live in
+`host_vars/<hostname>/`. Packages and settings for a machine type live in
+`group_vars/desktop/` and `group_vars/laptop/`, and the `desktop` and `laptop`
+roles only hold hardware-specific tasks, so they do not leak between machines.
 
 | Group     | Hostname          | Additional configuration                                          |
 | --------- | ----------------- | ----------------------------------------------------------------- |

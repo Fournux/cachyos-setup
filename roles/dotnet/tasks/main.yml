@@ -24,3 +24,17 @@
   loop: "{{ dotnet_install_channels }}"
   register: dotnet_install_results
   changed_when: "'is already installed' not in dotnet_install_results.stdout"
+
+- name: Create environment.d directory for .NET
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
+    state: directory
+    mode: '0755'
+
+- name: Write .NET environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
+    content: |
+      DOTNET_ROOT={{ dotnet_install_dir }}
+      PATH={{ dotnet_install_dir }}:{{ dotnet_install_dir }}/tools:$PATH
+    mode: '0644'

@@ -1,0 +1,8 @@
+---
+- name: Remove the Plymouth boot splash
+  ansible.builtin.import_tasks: plymouth.yml
+  tags: [plymouth]
+
+- name: Theme the Limine boot menu
+  ansible.builtin.import_tasks: limine.yml
+  tags: [limine]

@@ -1,12 +1,8 @@
 ---
-- name: Install laptop-specific packages
+- name: Install supergfxctl
   become: true
   community.general.pacman:
-    name:
-      - asusctl
-      - supergfxctl
-      - rog-control-center
-      - solaar
+    name: supergfxctl
     state: present
   tags: [packages]
 

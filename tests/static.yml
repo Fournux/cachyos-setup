@@ -58,6 +58,45 @@
       loop_control:
         label: "{{ 'signed-in user' if item.config else 'fresh install' }}"
 
+    - name: Parse the rendered Codex system config as TOML
+      ansible.builtin.command:
+        argv:
+          - python3
+          - -c
+          - import json, sys, tomllib; print(json.dumps(tomllib.load(sys.stdin.buffer)))
+        stdin: >-
+          {{ lookup('ansible.builtin.template',
+                    playbook_dir + '/../roles/ai_agents/templates/codex/config.toml.j2') }}
+      vars:
+        ai_agents_context7_api_key: "{{ item }}"
+      loop:
+        - ''
+        - test-context7-key
+      loop_control:
+        label: "{{ 'with Context7 key' if item else 'without Context7 key' }}"
+      register: static_codex_configs
+      changed_when: false
+
+    # ~/.codex/config.toml belongs to Codex; the system layer must not carry
+    # the tables that Codex writes there.
+    - name: Validate the Codex system config layer
+      ansible.builtin.assert:
+        quiet: true
+        that:
+          - static_codex_config.mcp_servers.serena.command == 'serena'
+          - "'--context=codex' in static_codex_config.mcp_servers.serena.args"
+          - static_codex_config.mcp_servers.context7.url == 'https://mcp.context7.com/mcp'
+          - >-
+            ('http_headers' in static_codex_config.mcp_servers.context7)
+            == (item.item | length > 0)
+          - static_codex_config.features.hooks
+          - static_codex_config.keys() | intersect(['projects', 'notice', 'marketplaces', 'plugins']) | length == 0
+      vars:
+        static_codex_config: "{{ item.stdout | from_json }}"
+      loop: "{{ static_codex_configs.results }}"
+      loop_control:
+        label: "{{ 'with Context7 key' if item.item else 'without Context7 key' }}"
+
     - name: Accept valid AUR package names
       ansible.builtin.assert:
         quiet: true
@@ -99,7 +138,7 @@
           {{
             lookup(
               'ansible.builtin.template',
-              playbook_dir + '/../roles/dns/templates/resolved.conf.j2'
+              playbook_dir + '/../roles/dns/templates/nextdns.conf.j2'
             )
           }}
       changed_when: false
@@ -120,7 +159,7 @@
           - -c
           - set -eu; HOOKS=(base systemd plymouth autodetect sd-plymouth); . "$1"; printf '%s' "${HOOKS[*]}"
           - static-plymouth-test
-          - "{{ playbook_dir }}/../roles/plymouth/files/90-no-plymouth.conf"
+          - "{{ playbook_dir }}/../roles/boot/files/90-no-plymouth.conf"
       register: static_plymouth_hooks
       changed_when: false
 

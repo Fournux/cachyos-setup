@@ -6,6 +6,22 @@
     state: present
   tags: [codex, antigravity, claude, skills]
 
+- name: Create environment.d directory for agent tools
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
+    state: directory
+    mode: '0755'
+  tags: [codex, antigravity, claude, skills]
+
+# Global installs from `cargo install` and `bun add -g` land in these dirs.
+- name: Write Cargo and Bun PATH environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-ai-agents.conf"
+    content: |
+      PATH=$HOME/.cargo/bin:$HOME/.bun/bin:$PATH
+    mode: '0644'
+  tags: [codex, antigravity, claude, skills]
+
 - name: Configure rustup default toolchain
   ansible.builtin.command:
     argv:

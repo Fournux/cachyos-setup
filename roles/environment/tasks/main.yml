@@ -1,49 +1,22 @@
 ---
+# Session-wide settings only. A role that installs a tool writes that tool's
+# environment.d drop-in itself.
 - name: Create environment.d directory
   ansible.builtin.file:
     path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
     state: directory
     mode: '0755'
 
-- name: Write Bun environment
-  ansible.builtin.copy:
-    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-bun.conf"
-    content: |
-      BUN_INSTALL=$HOME/.bun
-    mode: '0644'
-
 - name: Write PATH environment
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-paths.conf"
     content: |
-      PATH={{ environment_path_entries | reject('equalto', '') | join(':') }}:$PATH
+      PATH=$HOME/.local/bin:$HOME/bin:$PATH
     mode: '0644'
-  vars:
-    environment_path_entries:
-      - $HOME/.cargo/bin
-      - $HOME/.bun/bin
-      - $HOME/.local/bin
-      - $HOME/bin
-      - $HOME/.dotnet
-      - $HOME/.dotnet/tools
 
 - name: Write Electron Wayland environment
   ansible.builtin.copy:
     dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-electron.conf"
     content: |
       ELECTRON_OZONE_PLATFORM_HINT=wayland
-    mode: '0644'
-
-- name: Write dotnet root environment
-  ansible.builtin.copy:
-    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-dotnet.conf"
-    content: |
-      DOTNET_ROOT=$HOME/.dotnet
-    mode: '0644'
-
-- name: Write Godot environment
-  ansible.builtin.copy:
-    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
-    content: |
-      GODOT=/usr/bin/godot
     mode: '0644'

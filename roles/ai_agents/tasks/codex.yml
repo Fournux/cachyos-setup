@@ -31,11 +31,26 @@
     mode: '0700'
   tags: [codex]
 
-- name: Deploy Codex config
+- name: Create Codex system config directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ ai_agents_codex_system_config_path | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  tags: [codex]
+
+# Codex merges this system layer under ~/.codex/config.toml, which Codex owns
+# and rewrites (project trust, notices, plugins). Keys set there win.
+- name: Deploy Codex system config
+  become: true
   ansible.builtin.template:
     src: codex/config.toml.j2
-    dest: "{{ ansible_facts.env.HOME }}/.codex/config.toml"
-    mode: '0600'
+    dest: "{{ ai_agents_codex_system_config_path }}"
+    owner: root
+    group: "{{ ansible_facts.user_gid }}"
+    mode: '0640'
   no_log: true
   tags: [codex]
 

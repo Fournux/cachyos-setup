@@ -29,11 +29,34 @@
           entry in inventory/hosts.yml.
       tags: always
 
+    # The gnome and boot roles depend on choices made in the CachyOS installer.
+    - name: Check the installer choices this playbook builds on
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /usr/bin/gnome-shell
+        - /etc/default/limine
+        - /usr/bin/limine-mkinitcpio
+      register: site_installer_markers
+      tags: always
+
+    - name: Stop when CachyOS was not installed with GNOME and Limine
+      ansible.builtin.assert:
+        that:
+          - site_installer_markers.results | rejectattr('stat.exists') | list | length == 0
+        fail_msg: >-
+          Missing {{ site_installer_markers.results | rejectattr('stat.exists')
+          | map(attribute='item') | join(', ') }}. Install CachyOS with the
+          GNOME desktop and the Limine bootloader.
+      tags: always
+
   roles:
     - role: packages
       tags: [packages]
     - role: dotnet
       tags: [dotnet]
+    - role: godot
+      tags: [godot]
     - role: gimp
       tags: [gimp]
     - role: bash
@@ -46,8 +69,6 @@
       tags: [podman, containers]
     - role: mpv
       tags: [mpv]
-    - role: ankama
-      tags: [ankama, dofus, gaming]
     - role: discord
       tags: [discord]
     - role: desktop
@@ -60,10 +81,10 @@
       tags: [environment]
     - role: dns
       tags: [dns, network]
-    - role: plymouth
-      tags: [plymouth, boot]
-    - role: limine
-      tags: [limine, boot]
+    - role: mdns
+      tags: [mdns, network]
+    - role: boot
+      tags: [boot]
     - role: gnome
       tags: [gnome]
     - role: autostart

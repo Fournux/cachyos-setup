@@ -5,7 +5,7 @@
   become: true
   ansible.builtin.copy:
     src: 90-no-plymouth.conf
-    dest: "{{ plymouth_mkinitcpio_dropin_path }}"
+    dest: "{{ boot_plymouth_mkinitcpio_dropin_path }}"
     owner: root
     group: root
     mode: '0644'
@@ -14,7 +14,7 @@
 - name: Remove Plymouth packages
   become: true
   community.general.pacman:
-    name: "{{ plymouth_packages }}"
+    name: "{{ boot_plymouth_packages }}"
     state: absent
   notify: Regenerate initramfs
 
@@ -23,9 +23,9 @@
 - name: Remove Plymouth options from the Limine kernel command source
   become: true
   ansible.builtin.replace:
-    path: "{{ plymouth_limine_defaults_path }}"
+    path: "{{ boot_limine_defaults_path }}"
     regexp: '^([ \t]*KERNEL_CMDLINE(?:\[[^]\n]+\])?[ \t]*\+?=[ \t]*"[^"\n]*?)(?:(?<=")|(?<=[ \t])){{ item | regex_escape }}(?=[ \t"]|$)[ \t]*'
     replace: '\1'
     backup: true
-  loop: "{{ plymouth_limine_cmdline_options }}"
+  loop: "{{ boot_plymouth_cmdline_options }}"
   notify: Regenerate initramfs

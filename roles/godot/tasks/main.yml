@@ -1,0 +1,19 @@
+---
+- name: Install Godot
+  become: true
+  community.general.pacman:
+    name: godot
+    state: present
+
+- name: Create environment.d directory for Godot
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/environment.d"
+    state: directory
+    mode: '0755'
+
+- name: Write Godot environment
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/environment.d/70-godot.conf"
+    content: |
+      GODOT=/usr/bin/godot
+    mode: '0644'

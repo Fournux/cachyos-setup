@@ -3,5 +3,5 @@
   become: true
   ansible.builtin.command:
     argv:
-      - "{{ plymouth_initramfs_command }}"
+      - "{{ boot_initramfs_command }}"
   changed_when: true

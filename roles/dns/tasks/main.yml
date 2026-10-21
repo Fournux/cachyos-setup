@@ -6,7 +6,7 @@
       - dns_nextdns_device_name is defined
     fail_msg: >-
       Define nextdns_profile_id in group_vars/all and dns_nextdns_device_name
-      in the group_vars of this machine's inventory group.
+      in host_vars/<hostname>.yml.
 
 - name: Validate the private NextDNS profile ID without logging it
   ansible.builtin.set_fact:
@@ -38,15 +38,23 @@
   changed_when: false
   no_log: true
 
-- name: Deploy systemd-resolved config with NextDNS
+- name: Create the systemd-resolved drop-in directory
+  become: true
+  ansible.builtin.file:
+    path: /etc/systemd/resolved.conf.d
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy the NextDNS systemd-resolved drop-in
   become: true
   ansible.builtin.template:
-    src: resolved.conf.j2
-    dest: /etc/systemd/resolved.conf
+    src: nextdns.conf.j2
+    dest: /etc/systemd/resolved.conf.d/nextdns.conf
     owner: root
     group: root
     mode: '0644'
-    backup: true
   diff: false
   no_log: true
   notify: Restart systemd-resolved
@@ -57,27 +65,3 @@
     name: systemd-resolved
     state: started
     enabled: true
-
-- name: Install Avahi
-  become: true
-  community.general.pacman:
-    name: avahi
-    state: present
-
-- name: Ensure Avahi mDNS daemon is enabled and running
-  become: true
-  ansible.builtin.systemd_service:
-    name: avahi-daemon
-    state: started
-    enabled: true
-
-- name: Allow mDNS from approved networks
-  become: true
-  community.general.ufw:
-    rule: allow
-    direction: in
-    proto: udp
-    from_ip: "{{ item }}"
-    port: '5353'
-    comment: mDNS from approved network
-  loop: "{{ dns_allowed_networks }}"

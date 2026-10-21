@@ -152,7 +152,7 @@ case "$command_name" in
     require_file "$ROOT_DIR/tests/check-tags.sh" "tag-selection test"
     echo '==> Checking Bash scripts...'
     shellcheck bootstrap.sh show-elgato-output.sh tests/check-tags.sh \
-      roles/ai_agents/files/agents/statusline.sh roles/plymouth/files/90-no-plymouth.conf
+      roles/ai_agents/files/agents/statusline.sh roles/boot/files/90-no-plymouth.conf
     echo '==> Running yamllint...'
     yamllint .
     echo '==> Running Ansible syntax-check...'

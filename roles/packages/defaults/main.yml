@@ -9,6 +9,7 @@ packages_pacman_packages:
   - 7zip
   - gnu-free-fonts
   - ttf-inconsolata
+  - firefox
   - steam
   - wine-staging
   - mission-center
@@ -22,7 +23,6 @@ packages_pacman_packages:
   - github-cli
   - wl-clipboard
   - npm
-  - godot
   - qbittorrent
   - ttf-roboto-mono
   - gnome-tweaks
@@ -53,6 +53,11 @@ packages_aur_packages:
   - gapless
   - papirus-icon-theme-git
   - opera
+  - ankama-launcher
+
+# Machine-specific additions, set in group_vars/<group>/main.yml.
+packages_extra_pacman_packages: []
+packages_extra_aur_packages: []
 
 packages_flatpak_packages_required:
   - flatpak

@@ -2,10 +2,10 @@
 - name: Apply Limine Adwaita Dark global theme keys
   become: true
   ansible.builtin.lineinfile:
-    path: "{{ limine_config_path }}"
+    path: "{{ boot_limine_config_path }}"
     regexp: '^{{ item.key | regex_escape }}[ \t]*:'
     line: "{{ item.key }}: {{ item.value }}"
     insertbefore: BOF
     # Ansible backup names contain colons, which FAT filesystems reject.
     backup: false
-  loop: "{{ limine_theme | dict2items }}"
+  loop: "{{ boot_limine_theme | dict2items }}"
