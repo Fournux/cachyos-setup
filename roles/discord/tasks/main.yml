@@ -35,3 +35,24 @@
       }}
     mode: '0644'
     backup: true
+
+- name: Create autostart directory for Discord
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/autostart"
+    state: directory
+    mode: '0755'
+
+# Discord's own "Open on startup" entry (discord.desktop) points to a
+# versioned host binary that its self-updater deletes. This entry uses the
+# stable launcher under a name Discord never rewrites.
+- name: Autostart Discord through its stable launcher
+  ansible.builtin.copy:
+    dest: "{{ ansible_facts.env.HOME }}/.config/autostart/discord-autostart.desktop"
+    content: |
+      [Desktop Entry]
+      Type=Application
+      Name=Discord
+      Exec=/usr/bin/discord
+      Icon=discord
+      X-GNOME-Autostart-enabled=true
+    mode: '0644'
