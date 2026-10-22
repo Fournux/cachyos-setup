@@ -71,6 +71,8 @@
       tags: [mpv]
     - role: discord
       tags: [discord]
+    - role: ankama
+      tags: [ankama, dofus]
     - role: desktop
       when: "'desktop' in group_names"
       tags: [desktop]

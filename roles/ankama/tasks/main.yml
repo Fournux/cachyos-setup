@@ -1,0 +1,23 @@
+---
+- name: Install Ankama Launcher from the AUR
+  ansible.builtin.include_role:
+    name: aur_package
+    apply:
+      tags: always
+  vars:
+    aur_package_packages:
+      - ankama-launcher
+
+- name: Create Dofus shared settings directory
+  ansible.builtin.file:
+    path: "{{ ansible_facts.env.HOME }}/.config/unity3d/Ankama/Dofus/RELEASE/Shared"
+    state: directory
+    mode: '0755'
+
+# Dofus rewrites this file in place whenever presets change; the link makes
+# those changes show up in the repository.
+- name: Link the saved Dofus display presets to the repository
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/dofus-preset.json"
+    dest: "{{ ansible_facts.env.HOME }}/.config/unity3d/Ankama/Dofus/RELEASE/Shared/preset.json"
+    state: link

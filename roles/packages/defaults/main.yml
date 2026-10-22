@@ -53,7 +53,6 @@ packages_aur_packages:
   - gapless
   - papirus-icon-theme-git
   - opera
-  - ankama-launcher
 
 # Machine-specific additions, set in group_vars/<group>/main.yml.
 packages_extra_pacman_packages: []

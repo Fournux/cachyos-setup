@@ -98,4 +98,9 @@ require_task "$gimp_tasks" 'Stop when CachyOS was not installed with GNOME and L
 require_task "$gimp_tasks" 'gimp : Install GIMP'
 require_task "$gimp_tasks" 'gimp : Install the arrow Script-Fu plugin for the user'
 
+ankama_tasks="$(list_tasks ankama)"
+require_task "$ankama_tasks" 'Install Ankama Launcher from the AUR'
+require_task "$ankama_tasks" 'ankama : Link the saved Dofus display presets to the repository'
+reject_task "$ankama_tasks" 'packages : Install pacman packages'
+
 printf 'Tag-selection invariants passed.\n'

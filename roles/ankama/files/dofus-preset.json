@@ -1,0 +1,552 @@
+{
+  "savedPresets": {
+    "value": [
+      {
+        "presetIcon": 19,
+        "presetName": "Affichage Fournux",
+        "widgetSettings": 1407,
+        "characterInfosWidgetOptions": 69,
+        "questListWidgetOption": 1196,
+        "chatWidgetOptions": 160,
+        "bannerBigButton": true,
+        "buffsUISizedAutomatically": false,
+        "fighterInfoTooltipIsHorizontal": false,
+        "companionSlaveUIOrientationIsHorizontal": true,
+        "timelineSizedAutomatically": true,
+        "timelineTileSize": 0,
+        "timelineGaugePlacement": 0,
+        "timelineShowDeadFighters": false,
+        "timelineShowSummonedFighters": true,
+        "timelineFollowPlayingEntity": true,
+        "timelineOrientation": 0,
+        "alwaysShowGrid": false,
+        "alwaysShowGridFight": false,
+        "transparentOverlayMode": false,
+        "transparentOverlayModeFight": false,
+        "creatureModeRoleplay": false,
+        "creatureModeFight": false,
+        "mapCoordinates": true,
+        "challengeSelectionIsInHorizontalOrientation": false,
+        "gaugesWidgetColors": [
+          {
+            "Item1": 1,
+            "Item2": "#00000000"
+          }
+        ],
+        "gaugesWidgetOptions": 1,
+        "actionBarsWidgetOptions": [
+          {
+            "Item1": 69,
+            "Item2": [
+              1,
+              2
+            ],
+            "Item3": true
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          }
+        ],
+        "positions": [],
+        "uiPositionData": [
+          {
+            "Item1": "QuestList",
+            "Item2": {
+              "x": 0.0,
+              "y": 121.033211
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "BannerMenu",
+            "Item2": {
+              "x": 765.625,
+              "y": 885.6089
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "OptionBase",
+            "Item2": {
+              "x": 294.531219,
+              "y": 160.147614
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "Chat",
+            "Item2": {
+              "x": 0.0,
+              "y": 832.4724
+            },
+            "Item3": false,
+            "Item4": true
+          },
+          {
+            "Item1": "ActionBar1",
+            "Item2": {
+              "x": 389.843719,
+              "y": 913.653137
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "GaugeCharacter",
+            "Item2": {
+              "x": 848.0468,
+              "y": 37.63838
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "CartographyBanner",
+            "Item2": {
+              "x": 13.671874,
+              "y": 90.0368958
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": {
+              "x": 317.968719,
+              "y": 913.653137
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": {
+              "x": 661.3281,
+              "y": 912.915161
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "timeline",
+            "Item2": {
+              "x": 316.796875,
+              "y": 821.4022
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeSelectionDisplay",
+            "Item2": {
+              "x": 975.0,
+              "y": 741.6975
+            },
+            "Item3": true,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeChoiceDisplay",
+            "Item2": {
+              "x": 791.7968,
+              "y": 709.963135
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeSettingsDisplay",
+            "Item2": {
+              "x": 802.3437,
+              "y": 716.605164
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "InternalNotification",
+            "Item2": {
+              "x": 0.0,
+              "y": 378.5978
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "PartyDisplay",
+            "Item2": {
+              "x": 966.7968,
+              "y": 95.20296
+            },
+            "Item3": true,
+            "Item4": false
+          },
+          {
+            "Item1": "PlayerInventory",
+            "Item2": {
+              "x": 332.421875,
+              "y": 268.6347
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "FeedUI",
+            "Item2": {
+              "x": 315.234375,
+              "y": 291.5129
+            },
+            "Item3": false,
+            "Item4": false
+          }
+        ],
+        "dimensions": [
+          {
+            "Item1": "QuestList",
+            "Item2": {
+              "x": 0.0,
+              "y": 0.0
+            }
+          },
+          {
+            "Item1": "BannerMenu",
+            "Item2": {
+              "x": 422.0,
+              "y": 172.0
+            }
+          },
+          {
+            "Item1": "Chat",
+            "Item2": {
+              "x": 676.6667,
+              "y": 252.222168
+            }
+          },
+          {
+            "Item1": "GaugeCharacter",
+            "Item2": {
+              "x": 373.3333,
+              "y": 35.5555573
+            }
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": {
+              "x": 164.444458,
+              "y": 130.0
+            }
+          },
+          {
+            "Item1": "CartographyBanner",
+            "Item2": {
+              "x": 450.0,
+              "y": 357.7778
+            }
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": {
+              "x": 227.77771,
+              "y": 130.0
+            }
+          }
+        ],
+        "headerStates": [
+          {
+            "Item1": "BannerMenu",
+            "Item2": true
+          },
+          {
+            "Item1": "ActionBar1",
+            "Item2": true
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": true
+          },
+          {
+            "Item1": "timeline",
+            "Item2": true
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": true
+          }
+        ],
+        "uid": 0
+      },
+      {
+        "presetIcon": 107,
+        "presetName": "Combat Fournux",
+        "widgetSettings": 2431,
+        "characterInfosWidgetOptions": 69,
+        "questListWidgetOption": 1196,
+        "chatWidgetOptions": 160,
+        "bannerBigButton": true,
+        "buffsUISizedAutomatically": false,
+        "fighterInfoTooltipIsHorizontal": false,
+        "companionSlaveUIOrientationIsHorizontal": true,
+        "timelineSizedAutomatically": true,
+        "timelineTileSize": 0,
+        "timelineGaugePlacement": 0,
+        "timelineShowDeadFighters": false,
+        "timelineShowSummonedFighters": true,
+        "timelineFollowPlayingEntity": true,
+        "timelineOrientation": 0,
+        "alwaysShowGrid": false,
+        "alwaysShowGridFight": false,
+        "transparentOverlayMode": false,
+        "transparentOverlayModeFight": false,
+        "creatureModeRoleplay": false,
+        "creatureModeFight": false,
+        "mapCoordinates": true,
+        "challengeSelectionIsInHorizontalOrientation": false,
+        "gaugesWidgetColors": [
+          {
+            "Item1": 1,
+            "Item2": "#00000000"
+          }
+        ],
+        "gaugesWidgetOptions": 1,
+        "actionBarsWidgetOptions": [
+          {
+            "Item1": 133,
+            "Item2": [
+              1,
+              2
+            ],
+            "Item3": true
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          },
+          {
+            "Item1": 69,
+            "Item2": [],
+            "Item3": false
+          }
+        ],
+        "positions": [],
+        "uiPositionData": [
+          {
+            "Item1": "BannerMenu",
+            "Item2": {
+              "x": 765.625,
+              "y": 885.6089
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "OptionBase",
+            "Item2": {
+              "x": 294.531219,
+              "y": 160.147614
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "Chat",
+            "Item2": {
+              "x": 0.0,
+              "y": 832.4724
+            },
+            "Item3": false,
+            "Item4": true
+          },
+          {
+            "Item1": "ActionBar1",
+            "Item2": {
+              "x": 389.843719,
+              "y": 913.653137
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "GaugeCharacter",
+            "Item2": {
+              "x": 848.0468,
+              "y": 37.63838
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": {
+              "x": 317.968719,
+              "y": 913.653137
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": {
+              "x": 661.3281,
+              "y": 912.915161
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "timeline",
+            "Item2": {
+              "x": 316.796875,
+              "y": 821.4022
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeSelectionDisplay",
+            "Item2": {
+              "x": 975.0,
+              "y": 741.6975
+            },
+            "Item3": true,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeChoiceDisplay",
+            "Item2": {
+              "x": 791.7968,
+              "y": 709.963135
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "UIChallengeSettingsDisplay",
+            "Item2": {
+              "x": 802.3437,
+              "y": 716.605164
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "InternalNotification",
+            "Item2": {
+              "x": 0.0,
+              "y": 378.5978
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "PartyDisplay",
+            "Item2": {
+              "x": 966.7968,
+              "y": 95.20296
+            },
+            "Item3": true,
+            "Item4": false
+          },
+          {
+            "Item1": "PlayerInventory",
+            "Item2": {
+              "x": 332.421875,
+              "y": 268.6347
+            },
+            "Item3": false,
+            "Item4": false
+          },
+          {
+            "Item1": "FeedUI",
+            "Item2": {
+              "x": 315.234375,
+              "y": 291.5129
+            },
+            "Item3": false,
+            "Item4": false
+          }
+        ],
+        "dimensions": [
+          {
+            "Item1": "BannerMenu",
+            "Item2": {
+              "x": 422.0,
+              "y": 172.0
+            }
+          },
+          {
+            "Item1": "Chat",
+            "Item2": {
+              "x": 676.6667,
+              "y": 252.222168
+            }
+          },
+          {
+            "Item1": "GaugeCharacter",
+            "Item2": {
+              "x": 373.3333,
+              "y": 35.5555573
+            }
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": {
+              "x": 164.444458,
+              "y": 130.0
+            }
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": {
+              "x": 227.77771,
+              "y": 130.0
+            }
+          }
+        ],
+        "headerStates": [
+          {
+            "Item1": "BannerMenu",
+            "Item2": true
+          },
+          {
+            "Item1": "ActionBar1",
+            "Item2": true
+          },
+          {
+            "Item1": "CharacterInformations",
+            "Item2": true
+          },
+          {
+            "Item1": "timeline",
+            "Item2": true
+          },
+          {
+            "Item1": "EndTurnWidget",
+            "Item2": true
+          }
+        ],
+        "uid": 1
+      }
+    ]
+  }
+}

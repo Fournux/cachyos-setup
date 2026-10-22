@@ -27,4 +27,4 @@
 
 6. **Configuration Files**
    - Prefer drop-in directories (`*.conf.d`, `environment.d`, `modprobe.d`) over rewriting files owned by packages.
-   - Overwrite a user config file only when the application never writes to it. Otherwise use the application's lower-priority config layer (as with `/etc/codex/config.toml`), merge into the file (as with `~/.claude.json`), or deploy it once with `force: false`.
+   - Overwrite a user config file only when the application never writes to it. Otherwise use the application's lower-priority config layer (as with `/etc/codex/config.toml`), merge into the file (as with `~/.claude.json`), deploy it once with `force: false`, or symlink it to the repository when its changes should be tracked (as with the Dofus preset).

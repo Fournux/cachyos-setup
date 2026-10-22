@@ -33,8 +33,12 @@
 | Proton version manager | [**ProtonPlus**](https://github.com/Vysp3r/ProtonPlus) — manages [Proton-GE](https://github.com/GloriousEggroll/proton-ge-custom) and [Proton-CachyOS](https://github.com/CachyOS/proton-cachyos) versions |
 | System upgrades        | [**Topgrade**](https://github.com/topgrade-rs/topgrade) — centralizes upgrades across packages, tools, and runtimes; replaces the preinstalled `cachy-update` and Shelly, which are removed |
 
-Ankama Launcher is installed from the AUR with the other AUR packages
-(`./bootstrap.sh run --tags packages`).
+Ankama Launcher is installed from the AUR with my saved Dofus display presets:
+“Affichage Fournux” and “Combat Fournux”, which hides the minimap during fights.
+Dofus's preset file is a symlink to `roles/ankama/files/dofus-preset.json`, so
+preset changes made in game show up in `git status`. Applying the presets and
+setting “Combat Fournux” as the fight preset is done in game, once per account.
+Run `./bootstrap.sh run --tags ankama` to apply this role on its own.
 
 ## Fresh install
 
